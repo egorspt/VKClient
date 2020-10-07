@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoundImageView">
+        <attr name="civ_border_width" format="dimension"/>
+        <attr name="civ_border_color" format="color"/>
+        <attr name="civ_background_color" format="color"/>
+    </declare-styleable>
+    <declare-styleable name="FlexBoxLayout">
+        <attr name="fbl_uniform_style_default" format="boolean"/>
+    </declare-styleable>
+</resources>
