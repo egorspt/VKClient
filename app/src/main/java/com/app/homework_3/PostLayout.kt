@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.view.marginBottom
 import androidx.core.view.marginStart
@@ -149,6 +150,8 @@ class PostLayout @JvmOverloads constructor(
     fun setImagePost(bitmap: Bitmap) {
         postImage.setImageBitmap(bitmap)
     }
+
+    fun getImagePost() = postImage
 
     fun setIsLiked(boolean: Boolean) {
         isLiked = boolean

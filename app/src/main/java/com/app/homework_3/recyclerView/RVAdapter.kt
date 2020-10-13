@@ -1,14 +1,19 @@
-package com.app.homework_3
+package com.app.homework_3.recyclerView
 
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.app.homework_3.Post
+import com.app.homework_3.R
+import com.app.homework_3.SharedViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -18,11 +23,13 @@ import kotlinx.android.synthetic.main.recycler_view_post_without_image.view.*
 private const val TYPE_WITH_IMAGE = 0
 private const val TYPE_WITHOUT_IMAGE = 1
 
-class RVAdapter(posts: MutableList<Post>) : RecyclerView.Adapter<RVAdapter.BaseViewHolder>(),
+class RVAdapter(private val sharedViewModel: SharedViewModel, posts: MutableList<Post>, private val clickListener: (ImageView?, Post) -> Unit) : RecyclerView.Adapter<RVAdapter.BaseViewHolder>(),
     ItemTouchHelperAdapter {
 
     private var mainList: MutableList<Post>
-    private var differ = AsyncListDiffer(this, differCallback)
+    private var differ = AsyncListDiffer(this,
+        differCallback
+    )
     private var posts: MutableList<Post>
         set(value) {
             differ.submitList(value)
@@ -42,12 +49,22 @@ class RVAdapter(posts: MutableList<Post>) : RecyclerView.Adapter<RVAdapter.BaseV
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
             TYPE_WITH_IMAGE -> ViewHolderWithImage(
+                clickListener,
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.recycler_view_post_with_image, parent, false)
+                    .inflate(
+                        R.layout.recycler_view_post_with_image,
+                        parent,
+                        false
+                    )
             )
             else -> ViewHolderWithoutImage(
+                clickListener,
                 LayoutInflater.from(parent.context)
-                    .inflate(R.layout.recycler_view_post_without_image, parent, false)
+                    .inflate(
+                        R.layout.recycler_view_post_without_image,
+                        parent,
+                        false
+                    )
             )
         }
     }
@@ -63,7 +80,7 @@ class RVAdapter(posts: MutableList<Post>) : RecyclerView.Adapter<RVAdapter.BaseV
 
     abstract class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    class ViewHolderWithImage(itemView: View) : BaseViewHolder(itemView) {
+    class ViewHolderWithImage(private val clickListener: (ImageView?, Post) -> Unit, itemView: View) : BaseViewHolder(itemView) {
 
         fun bind(post: Post) {
             var view = itemView.postLayoutWithImage
@@ -84,37 +101,43 @@ class RVAdapter(posts: MutableList<Post>) : RecyclerView.Adapter<RVAdapter.BaseV
                     override fun onLoadCleared(placeholder: Drawable?) {
                     }
                 })
+            view.setOnClickListener { clickListener(view.getImagePost(), post) }
         }
     }
 
-    class ViewHolderWithoutImage(itemView: View) : BaseViewHolder(itemView) {
+    class ViewHolderWithoutImage(private val clickListener: (ImageView?, Post) -> Unit, itemView: View) : BaseViewHolder(itemView) {
 
         fun bind(post: Post) {
             var view = itemView.postLayoutWithoutImage
             view.setContentPost(post.text)
             view.setIsLiked(post.isFavorite)
             view.setDatePost(post.date.toLong())
+            view.setOnClickListener { clickListener(null, post) }
         }
     }
 
     override fun onItemDismiss(position: Int, direction: Int) {
+        var tempPosts = posts.toMutableList()
         when (direction) {
             ItemTouchHelper.START -> {
-                var tempPosts = posts.toMutableList()
                 tempPosts.removeAt(position)
                 posts = tempPosts
             }
             ItemTouchHelper.END -> {
-                var tempPosts = posts.toMutableList()
                 tempPosts[position].isFavorite = true
                 posts = tempPosts
                 notifyItemChanged(position)
             }
         }
+        sharedViewModel.favorites.value = tempPosts.filter { it.isFavorite }
     }
 
     fun refresh() {
         posts = mainList.toMutableList()
+    }
+
+    fun update(posts: List<Post>) {
+        this.posts = posts.toMutableList()
     }
 }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Homework_3</string>
+    <string name="app_name">Homework_4</string>
     <string name="textMoveDisclose">+%1$d view elements</string>
     <string name="textMoveHide">hide</string>
     <string name="widthError">Width of view more than width screen</string>
@@ -7,4 +7,7 @@
     <string name="postGroupName">Tinkoff Education</string>
     <string name="postDate">12 minutes ago</string>
     <string name="postContent">Нечего из-за всякого говна переживать. Жизнь продолжается.</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="navigationNewsline">Новости</string>
+    <string name="navigationFavorites">Избранное</string>
 </resources>

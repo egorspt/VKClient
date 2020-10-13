@@ -1,4 +1,4 @@
-package com.app.homework_3
+package com.app.homework_3.recyclerView
 
 import android.content.Context
 import android.graphics.Canvas
@@ -8,8 +8,8 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
+import com.app.homework_3.R
 import kotlinx.android.synthetic.main.recycler_view_post_with_image.view.*
 import kotlinx.android.synthetic.main.recycler_view_post_without_image.view.*
 import java.text.SimpleDateFormat
@@ -101,10 +101,14 @@ class CustomItemDecorator(private val context: Context) : RecyclerView.ItemDecor
     }
 
     private fun getDivider() =
-        ContextCompat.getDrawable(context, R.drawable.divider_post_recycler_view)!!
+        ContextCompat.getDrawable(context,
+            R.drawable.divider_post_recycler_view
+        )!!
 
     private fun getDividerWithDate() =
-        ContextCompat.getDrawable(context, R.drawable.divider_with_text_post_recycler_view)!!
+        ContextCompat.getDrawable(context,
+            R.drawable.divider_with_text_post_recycler_view
+        )!!
 
     private fun getHeaderDivider(longTime: Long): String {
         val formatDay = SimpleDateFormat("dd", Locale.getDefault())
