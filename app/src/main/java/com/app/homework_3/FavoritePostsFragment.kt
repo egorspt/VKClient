@@ -1,6 +1,5 @@
 package com.app.homework_3
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.homework_3.recyclerView.CustomItemDecorator
 import com.app.homework_3.recyclerView.ItemTouchHelperAdapter
 import com.app.homework_3.recyclerView.ItemTouchHelperCallback
-import com.app.homework_3.recyclerView.RVAdapter
+import com.app.homework_3.recyclerView.PostsAdapter
 import kotlinx.android.synthetic.main.posts_fragment.*
 import kotlinx.android.synthetic.main.posts_fragment.view.*
 
@@ -39,15 +38,15 @@ class FavoritePostsFragment : Fragment() {
     ): View = inflater.inflate(R.layout.posts_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val adapter = RVAdapter(
-            model,
-            emptyList<Post>().toMutableList()
-        ) { image, post ->
-            fragmentInteractor?.onOpenDetail(image, post.groupName, post.image, post.text)
+        val adapter = PostsAdapter(model) { text, image, post ->
+            fragmentInteractor?.onOpenDetail(text, image, post.groupName, post.image, post.text)
         }
-        var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        recyclerView.adapter = adapter
+        val recyclerView = view.recyclerView
+        with(recyclerView) {
+            layoutManager = LinearLayoutManager(requireActivity())
+            this.adapter = adapter
+            addItemDecoration(CustomItemDecorator(requireActivity()))
+        }
 
         val callback =
             ItemTouchHelperCallback(adapter as ItemTouchHelperAdapter)
@@ -61,11 +60,6 @@ class FavoritePostsFragment : Fragment() {
                 R.drawable.divider_post_recycler_view
             )!!
         )
-        recyclerView.addItemDecoration(
-            CustomItemDecorator(
-                requireActivity()
-            )
-        )
 
         view.swipeContainer.setOnRefreshListener {
             model.favorites.value?.let { adapter.update(it) }
@@ -73,7 +67,16 @@ class FavoritePostsFragment : Fragment() {
         }
 
         model.favorites.observe(viewLifecycleOwner, Observer<List<Post>> { posts ->
-            adapter.update(posts)
+            hideShimmer()
+            if (posts.isEmpty())
+                errorText.text = getString(R.string.errorText)
+            else
+                adapter.update(posts)
         })
+    }
+
+    private fun hideShimmer() {
+        shimmerViewContainer.stopShimmer()
+        shimmerViewContainer.visibility = View.GONE
     }
 }

@@ -52,7 +52,7 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        var currentLeft = l + paddingLeft
+        val currentLeft = l + paddingLeft
         var currentTop = t + paddingTop
 
         roundImageView.layout(
@@ -116,16 +116,6 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
         )
     }
 
-    fun isLiked() = isLiked
-
-    fun setImageGroup(drawable: Drawable) {
-        roundImageView.setImageDrawable(drawable)
-    }
-
-    fun setNameGroup(nameGroup: String) {
-        name.text = nameGroup
-    }
-
     fun setDatePost(datePost: Long) {
         dateLong = datePost
         val format = SimpleDateFormat("dd.MM.yyyy HH:mm")
@@ -137,6 +127,8 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
     fun setContentPost(contentPost: String) {
         postContent.text = contentPost
     }
+
+    fun getContentPost() = postContent
 
     fun setIsLiked(boolean: Boolean) {
         isLiked = boolean

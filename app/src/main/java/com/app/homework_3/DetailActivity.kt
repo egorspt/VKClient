@@ -13,11 +13,13 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.android.synthetic.main.detail_activity.*
 
-const val ARG_GROUP_NAME = "arg_group_name"
-const val ARG_CONTENT_IMAGE = "arg_content_image"
-const val ARG_CONTENT_TEXT = "arg_content_text"
-
 class DetailActivity : AppCompatActivity() {
+
+    companion object {
+        const val ARG_GROUP_NAME = "arg_group_name"
+        const val ARG_CONTENT_IMAGE = "arg_content_image"
+        const val ARG_CONTENT_TEXT = "arg_content_text"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +27,7 @@ class DetailActivity : AppCompatActivity() {
 
         name.text = intent.getStringExtra(ARG_GROUP_NAME)
         postContent.text = intent.getStringExtra(ARG_CONTENT_TEXT)
+        supportStartPostponedEnterTransition()
         Glide.with(this)
             .load(intent.getStringExtra(ARG_CONTENT_IMAGE))
             .listener(object : RequestListener<Drawable?> {

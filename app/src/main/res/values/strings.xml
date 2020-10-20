@@ -10,4 +10,9 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="navigationNewsline">Новости</string>
     <string name="navigationFavorites">Избранное</string>
+    <string name="dialogErrorTitle">Ошибка</string>
+    <string name="dialogPositiveButtonText">OK</string>
+    <string name="errorText">%1$s\nСервер недоступен\nПопробуйте позже</string>
+    <string name="word_today">Сегодня</string>
+    <string name="word_yesterday">Вчера</string>
 </resources>

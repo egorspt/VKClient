@@ -1,12 +1,12 @@
 package com.app.homework_3.recyclerView
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -20,14 +20,33 @@ import com.bumptech.glide.request.transition.Transition
 import kotlinx.android.synthetic.main.recycler_view_post_with_image.view.*
 import kotlinx.android.synthetic.main.recycler_view_post_without_image.view.*
 
-private const val TYPE_WITH_IMAGE = 0
-private const val TYPE_WITHOUT_IMAGE = 1
-
-class RVAdapter(private val sharedViewModel: SharedViewModel, posts: MutableList<Post>, private val clickListener: (ImageView?, Post) -> Unit) : RecyclerView.Adapter<RVAdapter.BaseViewHolder>(),
+class PostsAdapter(
+    private val sharedViewModel: SharedViewModel,
+    private val clickListener: (TextView, ImageView?, Post) -> Unit
+) : RecyclerView.Adapter<PostsAdapter.BaseViewHolder>(),
     ItemTouchHelperAdapter {
 
-    private var mainList: MutableList<Post>
-    private var differ = AsyncListDiffer(this,
+    private val differCallback = object : DiffUtil.ItemCallback<Post>() {
+
+        override fun areItemsTheSame(oldPost: Post, newPost: Post) = oldPost.id == newPost.id
+
+        override fun areContentsTheSame(oldPost: Post, newPost: Post): Boolean {
+            return oldPost.groupName == newPost.groupName &&
+                    oldPost.date == oldPost.date &&
+                    oldPost.text == newPost.text &&
+                    oldPost.isFavorite == newPost.isFavorite &&
+                    oldPost.image == newPost.image
+        }
+    }
+
+    companion object {
+        private const val TYPE_WITH_IMAGE = 0
+        private const val TYPE_WITHOUT_IMAGE = 1
+    }
+
+    private var mainList = emptyList<Post>().toMutableList()
+    private var differ = AsyncListDiffer(
+        this,
         differCallback
     )
     private var posts: MutableList<Post>
@@ -35,13 +54,6 @@ class RVAdapter(private val sharedViewModel: SharedViewModel, posts: MutableList
             differ.submitList(value)
         }
         get() = differ.currentList
-
-    init {
-        posts.sortBy { it.date }
-        posts.reverse()
-        mainList = mutableListOf<Post>().apply { posts.forEach { add(it) } }
-        this.posts = posts
-    }
 
     override fun getItemViewType(position: Int) =
         if (posts[position].image == null) TYPE_WITHOUT_IMAGE else TYPE_WITH_IMAGE
@@ -80,7 +92,10 @@ class RVAdapter(private val sharedViewModel: SharedViewModel, posts: MutableList
 
     abstract class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
-    class ViewHolderWithImage(private val clickListener: (ImageView?, Post) -> Unit, itemView: View) : BaseViewHolder(itemView) {
+    class ViewHolderWithImage(
+        private val clickListener: (TextView, ImageView?, Post) -> Unit,
+        itemView: View
+    ) : BaseViewHolder(itemView) {
 
         fun bind(post: Post) {
             var view = itemView.postLayoutWithImage
@@ -101,18 +116,27 @@ class RVAdapter(private val sharedViewModel: SharedViewModel, posts: MutableList
                     override fun onLoadCleared(placeholder: Drawable?) {
                     }
                 })
-            view.setOnClickListener { clickListener(view.getImagePost(), post) }
+            view.setOnClickListener {
+                clickListener(
+                    view.getContentPost(),
+                    view.getImagePost(),
+                    post
+                )
+            }
         }
     }
 
-    class ViewHolderWithoutImage(private val clickListener: (ImageView?, Post) -> Unit, itemView: View) : BaseViewHolder(itemView) {
+    class ViewHolderWithoutImage(
+        private val clickListener: (TextView, ImageView?, Post) -> Unit,
+        itemView: View
+    ) : BaseViewHolder(itemView) {
 
         fun bind(post: Post) {
             var view = itemView.postLayoutWithoutImage
             view.setContentPost(post.text)
             view.setIsLiked(post.isFavorite)
             view.setDatePost(post.date.toLong())
-            view.setOnClickListener { clickListener(null, post) }
+            view.setOnClickListener { clickListener(view.getContentPost(), null, post) }
         }
     }
 
@@ -139,17 +163,11 @@ class RVAdapter(private val sharedViewModel: SharedViewModel, posts: MutableList
     fun update(posts: List<Post>) {
         this.posts = posts.toMutableList()
     }
-}
 
-private val differCallback = object : DiffUtil.ItemCallback<Post>() {
-
-    override fun areItemsTheSame(oldPost: Post, newPost: Post) = oldPost.id == newPost.id
-
-    override fun areContentsTheSame(oldPost: Post, newPost: Post): Boolean {
-        return oldPost.groupName == newPost.groupName &&
-                oldPost.date == oldPost.date &&
-                oldPost.text == newPost.text &&
-                oldPost.isFavorite == newPost.isFavorite &&
-                oldPost.image == newPost.image
+    fun setData(posts: MutableList<Post>) {
+        posts.sortBy { it.date }
+        posts.reverse()
+        mainList = mutableListOf<Post>().apply { posts.forEach { add(it) } }
+        this.posts = posts
     }
 }

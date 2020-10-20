@@ -3,7 +3,7 @@ package com.app.homework_3
 import android.graphics.drawable.Drawable
 
 data class Posts(
-    var posts: List<Post>
+    val posts: List<Post>
 )
 
 data class Post(

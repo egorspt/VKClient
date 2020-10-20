@@ -5,17 +5,11 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
-class ViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+class ViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle, list: List<Fragment>) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
-    private var fragments: MutableList<Fragment> = mutableListOf()
+    private var fragments = list
 
     override fun getItemCount() = fragments.size
 
     override fun createFragment(position: Int) = fragments[position]
-
-    fun update(fragments: List<Fragment>) {
-        this.fragments.clear()
-        this.fragments.addAll(fragments)
-        notifyDataSetChanged()
-    }
 }

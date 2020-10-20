@@ -21,7 +21,7 @@ class CustomItemDecorator(private val context: Context) : RecyclerView.ItemDecor
         canvas.save()
         val left: Int
         val right: Int
-        var mBounds = Rect()
+        val mBounds = Rect()
         if (parent.clipToPadding) {
             left = parent.paddingLeft
             right = parent.width - parent.paddingRight
@@ -116,8 +116,8 @@ class CustomItemDecorator(private val context: Context) : RecyclerView.ItemDecor
         val currentDay = formatDay.format(Date(Calendar.getInstance().time.time)).toInt()
         val postDay = formatDay.format(longTime).toInt()
         return when {
-            currentDay == postDay -> "Сегодня"
-            currentDay - postDay == 1 -> "Вчера"
+            currentDay == postDay -> context.getString(R.string.word_today)
+            currentDay - postDay == 1 -> context.getString(R.string.word_yesterday)
             else -> formatOldDay.format(Date(longTime))
         }
     }

@@ -1,6 +1,6 @@
 package com.app.homework_3
 
-import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -16,15 +16,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.homework_3.recyclerView.CustomItemDecorator
 import com.app.homework_3.recyclerView.ItemTouchHelperAdapter
 import com.app.homework_3.recyclerView.ItemTouchHelperCallback
-import com.app.homework_3.recyclerView.RVAdapter
+import com.app.homework_3.recyclerView.PostsAdapter
 import com.google.gson.Gson
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.posts_fragment.*
 import kotlinx.android.synthetic.main.posts_fragment.view.*
+import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 class AllPostsFragment : Fragment() {
 
     private val model: SharedViewModel by activityViewModels()
     private var fragmentInteractor: FragmentInteractor? = null
+    private val compositeDisposable = CompositeDisposable()
+    lateinit var adapter: PostsAdapter
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -47,11 +56,48 @@ class AllPostsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val adapter = RVAdapter(
-            model,
-            getPosts().toMutableList()
-        ) { image, post ->
-            fragmentInteractor?.onOpenDetail(image, post.groupName, post.image, post.text)
+        val disposable = Observable.fromCallable {
+            if (Random.nextInt(10) == 0)
+                throw RuntimeException(":(")
+            getPosts()
+        }
+            .subscribeOn(Schedulers.io())
+            .delay(2, TimeUnit.SECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { shimmerViewContainer.startShimmer() }
+            .subscribeBy(
+                onNext = { list ->
+                    adapter.setData(list.toMutableList())
+                    if (model.favorites.value == null || model.favorites.value?.let { it.size } == 0)
+                        model.favorites.value = list.filter { it.isFavorite }
+                },
+                onComplete = {
+                    hideShimmer()
+                },
+                onError = {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle(getString(R.string.dialogErrorTitle))
+                        .setMessage(it.message)
+                        .setPositiveButton(getString(R.string.dialogPositiveButtonText)) { dialog, _ ->
+                            dialog.cancel()
+                        }.show()
+                    with(errorText) {
+                        visibility = View.VISIBLE
+                        text = getString(R.string.errorText, it.message)
+                    }
+                    hideShimmer()
+                }
+            )
+        compositeDisposable.add(disposable)
+
+        adapter = PostsAdapter(model) { text, image, post ->
+            fragmentInteractor?.onOpenDetail(
+                text,
+                image,
+                post.groupName,
+                post.image,
+                post.text
+            )
         }
         var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())
@@ -79,8 +125,15 @@ class AllPostsFragment : Fragment() {
             adapter.refresh()
             swipeContainer.isRefreshing = false
         }
+    }
 
-        if (model.favorites.value == null || model.favorites.value?.let { it.size } == 0)
-            model.favorites.value = getPosts().filter { it.isFavorite }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        compositeDisposable.clear()
+    }
+
+    private fun hideShimmer() {
+        shimmerViewContainer.stopShimmer()
+        shimmerViewContainer.visibility = View.GONE
     }
 }

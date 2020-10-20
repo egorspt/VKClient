@@ -2,15 +2,21 @@ package com.app.homework_3
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
+import com.app.homework_3.DetailActivity.Companion.ARG_CONTENT_IMAGE
+import com.app.homework_3.DetailActivity.Companion.ARG_CONTENT_TEXT
+import com.app.homework_3.DetailActivity.Companion.ARG_GROUP_NAME
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.news_fragment.*
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(), FragmentInteractor {
@@ -22,15 +28,15 @@ class MainActivity : AppCompatActivity(), FragmentInteractor {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
-        viewPager.adapter = viewPagerAdapter
-        viewPager.registerOnPageChangeCallback(viewPagerListener)
-        viewPagerAdapter.update(
-            listOf(
-                AllPostsFragment(),
-                FavoritePostsFragment()
-            )
-        )
+        val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager, lifecycle, listOf(
+            AllPostsFragment(),
+            FavoritePostsFragment()
+        ))
+        with(viewPager) {
+            adapter = viewPagerAdapter
+            registerOnPageChangeCallback(viewPagerListener)
+            isUserInputEnabled = false
+        }
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabs[position]
@@ -49,6 +55,7 @@ class MainActivity : AppCompatActivity(), FragmentInteractor {
                 onChangeFavorites(false)
             else onChangeFavorites(true)
         })
+        onChangeFavorites(false)
     }
 
     private val viewPagerListener = object : ViewPager2.OnPageChangeCallback() {
@@ -67,6 +74,7 @@ class MainActivity : AppCompatActivity(), FragmentInteractor {
     }
 
     override fun onOpenDetail(
+        sharedTextView: TextView,
         sharedImageView: ImageView?,
         groupName: String,
         contentImage: String?,
@@ -75,8 +83,8 @@ class MainActivity : AppCompatActivity(), FragmentInteractor {
         val options = sharedImageView?.let {
             ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
-                it,
-                ViewCompat.getTransitionName(sharedImageView)!!
+                *arrayOf(Pair.create(sharedImageView as View, ViewCompat.getTransitionName(sharedImageView)),
+                Pair.create(sharedTextView as View, ViewCompat.getTransitionName(sharedImageView)))
             )
         }
         startActivity(Intent(this, DetailActivity::class.java).apply {

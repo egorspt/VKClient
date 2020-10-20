@@ -3,6 +3,7 @@ package com.app.homework_3
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.app.homework_3.DetailActivity.Companion.ARG_CONTENT_IMAGE
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException

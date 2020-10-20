@@ -121,16 +121,6 @@ class PostLayout @JvmOverloads constructor(
         else buttonLike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_favorite_border))
     }
 
-    fun isLiked() = isLiked
-
-    fun setImageGroup(drawable: Drawable) {
-        roundImageView.setImageDrawable(drawable)
-    }
-
-    fun setNameGroup(nameGroup: String) {
-        name.text = nameGroup
-    }
-
     fun setDatePost(datePost: Long) {
         dateLong = datePost
         val format = SimpleDateFormat("dd.MM.yyyy HH:mm")
@@ -143,15 +133,13 @@ class PostLayout @JvmOverloads constructor(
         postContent.text = contentPost
     }
 
-    fun setImagePost(drawable: Drawable) {
-        postImage.setImageDrawable(drawable)
-    }
-
     fun setImagePost(bitmap: Bitmap) {
         postImage.setImageBitmap(bitmap)
     }
 
     fun getImagePost() = postImage
+
+    fun getContentPost() = postContent
 
     fun setIsLiked(boolean: Boolean) {
         isLiked = boolean
