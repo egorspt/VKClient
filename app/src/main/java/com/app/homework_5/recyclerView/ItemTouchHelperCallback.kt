@@ -1,9 +1,8 @@
-package com.app.homework_3.recyclerView
+package com.app.homework_5.recyclerView
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
-import com.app.homework_3.recyclerView.ItemTouchHelperAdapter
 
 
 open class ItemTouchHelperCallback(private val adapter: ItemTouchHelperAdapter)

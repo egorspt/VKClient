@@ -1,4 +1,4 @@
-package com.app.homework_3.recyclerView
+package com.app.homework_5.recyclerView
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.app.homework_3.Post
-import com.app.homework_3.R
-import com.app.homework_3.SharedViewModel
+import com.app.homework_5.Post
+import com.app.homework_5.R
+import com.app.homework_5.SharedViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -98,30 +98,31 @@ class PostsAdapter(
     ) : BaseViewHolder(itemView) {
 
         fun bind(post: Post) {
-            var view = itemView.postLayoutWithImage
-            view.setContentPost(post.text)
-            view.setIsLiked(post.isFavorite)
-            view.setDatePost(post.date.toLong())
-            Glide.with(itemView.context)
-                .asBitmap()
-                .load(post.image)
-                .into(object : CustomTarget<Bitmap>() {
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        view.setImagePost(resource)
-                    }
+            with(itemView.postLayoutWithImage) {
+                setContentPost(post.text)
+                setIsLiked(post.isFavorite)
+                setDatePost(post.date.toLong())
+                Glide.with(itemView.context)
+                    .asBitmap()
+                    .load(post.image)
+                    .into(object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap>?
+                        ) {
+                            setImagePost(resource)
+                        }
 
-                    override fun onLoadCleared(placeholder: Drawable?) {
-                    }
-                })
-            view.setOnClickListener {
-                clickListener(
-                    view.getContentPost(),
-                    view.getImagePost(),
-                    post
-                )
+                        override fun onLoadCleared(placeholder: Drawable?) {
+                        }
+                    })
+                setOnClickListener {
+                    clickListener(
+                        getContentPost(),
+                        getImagePost(),
+                        post
+                    )
+                }
             }
         }
     }
@@ -132,16 +133,17 @@ class PostsAdapter(
     ) : BaseViewHolder(itemView) {
 
         fun bind(post: Post) {
-            var view = itemView.postLayoutWithoutImage
-            view.setContentPost(post.text)
-            view.setIsLiked(post.isFavorite)
-            view.setDatePost(post.date.toLong())
-            view.setOnClickListener { clickListener(view.getContentPost(), null, post) }
+            with(itemView.postLayoutWithoutImage) {
+                setContentPost(post.text)
+                setIsLiked(post.isFavorite)
+                setDatePost(post.date.toLong())
+                setOnClickListener { clickListener(getContentPost(), null, post) }
+            }
         }
     }
 
     override fun onItemDismiss(position: Int, direction: Int) {
-        var tempPosts = posts.toMutableList()
+        val tempPosts = posts.toMutableList()
         when (direction) {
             ItemTouchHelper.START -> {
                 tempPosts.removeAt(position)

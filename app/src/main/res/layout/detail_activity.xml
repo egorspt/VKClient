@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:padding="10dp">
 
-        <com.app.homework_3.RoundImageView
+        <com.app.homework_5.RoundImageView
             android:id="@+id/roundImageView"
             android:layout_width="80dp"
             android:layout_height="80dp"
@@ -17,7 +17,6 @@
             android:src="@drawable/tinkoff_icon"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
 
         <TextView
             android:id="@+id/name"
@@ -37,7 +36,8 @@
             android:text="@string/postContent"
             android:textSize="15sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/postImage" />
+            app:layout_constraintTop_toBottomOf="@+id/postImage"
+            android:transitionName="@string/transitionNameText"/>
 
         <ImageView
             android:id="@+id/postImage"
@@ -46,7 +46,7 @@
             android:maxHeight="350dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/roundImageView"
-            android:transitionName="postImage"/>
+            android:transitionName="@string/transitionNameImage"/>
 
         <ImageButton
             android:id="@+id/buttonLike"

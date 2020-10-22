@@ -1,4 +1,4 @@
-package com.app.homework_3
+package com.app.homework_5
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,9 +12,9 @@ import androidx.core.util.Pair
 import androidx.core.view.ViewCompat
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
-import com.app.homework_3.DetailActivity.Companion.ARG_CONTENT_IMAGE
-import com.app.homework_3.DetailActivity.Companion.ARG_CONTENT_TEXT
-import com.app.homework_3.DetailActivity.Companion.ARG_GROUP_NAME
+import com.app.homework_5.DetailActivity.Companion.ARG_CONTENT_IMAGE
+import com.app.homework_5.DetailActivity.Companion.ARG_CONTENT_TEXT
+import com.app.homework_5.DetailActivity.Companion.ARG_GROUP_NAME
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -83,8 +83,8 @@ class MainActivity : AppCompatActivity(), FragmentInteractor {
         val options = sharedImageView?.let {
             ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
-                *arrayOf(Pair.create(sharedImageView as View, ViewCompat.getTransitionName(sharedImageView)),
-                Pair.create(sharedTextView as View, ViewCompat.getTransitionName(sharedImageView)))
+                *arrayOf(Pair.create(sharedImageView as View, getString(R.string.transitionNameImage)),
+                Pair.create(sharedTextView as View, getString(R.string.transitionNameText)))
             )
         }
         startActivity(Intent(this, DetailActivity::class.java).apply {

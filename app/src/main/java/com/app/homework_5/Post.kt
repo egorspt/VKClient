@@ -1,6 +1,4 @@
-package com.app.homework_3
-
-import android.graphics.drawable.Drawable
+package com.app.homework_5
 
 data class Posts(
     val posts: List<Post>

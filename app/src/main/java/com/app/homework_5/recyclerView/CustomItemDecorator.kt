@@ -1,4 +1,4 @@
-package com.app.homework_3.recyclerView
+package com.app.homework_5.recyclerView
 
 import android.content.Context
 import android.graphics.Canvas
@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.app.homework_3.R
+import com.app.homework_5.R
 import kotlinx.android.synthetic.main.recycler_view_post_with_image.view.*
 import kotlinx.android.synthetic.main.recycler_view_post_without_image.view.*
 import java.text.SimpleDateFormat

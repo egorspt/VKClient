@@ -1,7 +1,7 @@
-package com.app.homework_3
+package com.app.homework_5
 
 import android.content.Context
-import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.post_layout.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-class PostLayoutWithoutImage @JvmOverloads constructor(
+class PostLayout @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -24,7 +24,7 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
     private var dateLong: Long = 0
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.post_layout_without_image, this, true)
+        LayoutInflater.from(context).inflate(R.layout.post_layout, this, true)
         buttonLike.setOnClickListener {
             isLiked = !isLiked
             checkLikedIcon()
@@ -40,19 +40,20 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
         measureChildWithMargins(name, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(date, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(postContent, widthMeasureSpec, 0, heightMeasureSpec, height)
+        measureChildWithMargins(postImage, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonLike, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonComment, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonShare, widthMeasureSpec, 0, heightMeasureSpec, height)
-        height =
-            roundImageView.measuredHeight + roundImageView.marginTop + roundImageView.marginBottom +
-                    postContent.measuredHeight + postContent.marginTop + postContent.marginBottom +
+        height = roundImageView.measuredHeight + roundImageView.marginTop + roundImageView.marginBottom +
+                postContent.measuredHeight + postContent.marginTop + postContent.marginBottom +
+                postImage.measuredHeight + postImage.marginTop + postImage.marginBottom +
                     buttonLike.measuredHeight + buttonLike.marginTop + buttonLike.marginBottom + paddingTop + paddingBottom
 
         setMeasuredDimension(desiredWidth, resolveSize(height, heightMeasureSpec))
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        val currentLeft = l + paddingLeft
+        var currentLeft = l + paddingLeft
         var currentTop = t + paddingTop
 
         roundImageView.layout(
@@ -81,6 +82,13 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
             currentTop + postContent.marginTop + postContent.measuredHeight
         )
         currentTop += postContent.measuredHeight + postContent.marginTop + postContent.marginBottom
+        postImage.layout(
+            currentLeft,
+            currentTop + postImage.marginTop,
+            currentLeft + postImage.measuredWidth,
+            currentTop + postImage.marginTop + postImage.measuredHeight
+        )
+        currentTop += postImage.measuredHeight + postImage.marginTop + postImage.marginBottom
         buttonLike.layout(
             currentLeft + buttonLike.marginStart,
             currentTop + buttonLike.marginTop,
@@ -107,19 +115,14 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
 
     private fun checkLikedIcon() {
         if (isLiked)
-            buttonLike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_favorite))
-        else buttonLike.setImageDrawable(
-            ContextCompat.getDrawable(
-                context,
-                R.drawable.ic_favorite_border
-            )
-        )
+            buttonLike.setImageDrawable(ContextCompat.getDrawable(context ,R.drawable.ic_favorite))
+        else buttonLike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_favorite_border))
     }
 
     fun setDatePost(datePost: Long) {
         dateLong = datePost
         val format = SimpleDateFormat("dd.MM.yyyy HH:mm")
-        date.text = format.format(Date(datePost))
+        date.text = format.format(Date(dateLong))
     }
 
     fun getDateLong() = dateLong
@@ -127,6 +130,12 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
     fun setContentPost(contentPost: String) {
         postContent.text = contentPost
     }
+
+    fun setImagePost(bitmap: Bitmap) {
+        postImage.setImageBitmap(bitmap)
+    }
+
+    fun getImagePost() = postImage
 
     fun getContentPost() = postContent
 

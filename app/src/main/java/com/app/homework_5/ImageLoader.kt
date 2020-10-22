@@ -1,25 +1,19 @@
-package com.app.homework_3
+package com.app.homework_5
 
 import android.graphics.drawable.Drawable
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.app.homework_3.DetailActivity.Companion.ARG_CONTENT_IMAGE
+import android.widget.ImageView
+import androidx.fragment.app.FragmentActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import kotlinx.android.synthetic.main.detail_activity.*
-import kotlinx.android.synthetic.main.image_activity.*
 
-class ImageActivity : AppCompatActivity() {
+class ImageLoader() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.image_activity)
-
-        Glide.with(this)
-            .load(intent.getStringExtra(ARG_CONTENT_IMAGE))
+    fun glideLoad(context: FragmentActivity, url: String, holder: ImageView) {
+        Glide.with(context)
+            .load(url)
             .listener(object : RequestListener<Drawable?> {
                 override fun onLoadFailed(
                     e: GlideException?,
@@ -27,7 +21,7 @@ class ImageActivity : AppCompatActivity() {
                     target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    supportStartPostponedEnterTransition()
+                    context.supportStartPostponedEnterTransition()
                     return false
                 }
 
@@ -38,10 +32,10 @@ class ImageActivity : AppCompatActivity() {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    supportStartPostponedEnterTransition()
+                    context.supportStartPostponedEnterTransition()
                     return false
                 }
             })
-            .into(imageView)
+            .into(holder)
     }
 }

@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="10dp">
 
-    <com.app.homework_3.RoundImageView
+    <com.app.homework_5.RoundImageView
         android:id="@+id/roundImageView"
         android:layout_width="80dp"
         android:layout_height="80dp"

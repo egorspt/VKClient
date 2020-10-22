@@ -1,4 +1,4 @@
-package com.app.homework_3
+package com.app.homework_5
 
 import android.content.Context
 import android.os.Bundle
@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.app.homework_3.recyclerView.CustomItemDecorator
-import com.app.homework_3.recyclerView.ItemTouchHelperAdapter
-import com.app.homework_3.recyclerView.ItemTouchHelperCallback
-import com.app.homework_3.recyclerView.PostsAdapter
+import com.app.homework_5.recyclerView.CustomItemDecorator
+import com.app.homework_5.recyclerView.ItemTouchHelperAdapter
+import com.app.homework_5.recyclerView.ItemTouchHelperCallback
+import com.app.homework_5.recyclerView.PostsAdapter
 import kotlinx.android.synthetic.main.posts_fragment.*
 import kotlinx.android.synthetic.main.posts_fragment.view.*
 
@@ -54,12 +54,9 @@ class FavoritePostsFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         val dividerItemDecoration = DividerItemDecoration(requireActivity(), RecyclerView.VERTICAL)
-        dividerItemDecoration.setDrawable(
-            ContextCompat.getDrawable(
-                requireActivity(),
-                R.drawable.divider_post_recycler_view
-            )!!
-        )
+        ContextCompat.getDrawable(requireActivity(), R.drawable.divider_post_recycler_view)?.let {
+            dividerItemDecoration.setDrawable(it)
+        }
 
         view.swipeContainer.setOnRefreshListener {
             model.favorites.value?.let { adapter.update(it) }

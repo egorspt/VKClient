@@ -1,4 +1,4 @@
-package com.app.homework_3
+package com.app.homework_5
 
 import android.app.AlertDialog
 import android.content.Context
@@ -13,10 +13,10 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.app.homework_3.recyclerView.CustomItemDecorator
-import com.app.homework_3.recyclerView.ItemTouchHelperAdapter
-import com.app.homework_3.recyclerView.ItemTouchHelperCallback
-import com.app.homework_3.recyclerView.PostsAdapter
+import com.app.homework_5.recyclerView.CustomItemDecorator
+import com.app.homework_5.recyclerView.ItemTouchHelperAdapter
+import com.app.homework_5.recyclerView.ItemTouchHelperCallback
+import com.app.homework_5.recyclerView.PostsAdapter
 import com.google.gson.Gson
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,6 +27,7 @@ import kotlinx.android.synthetic.main.posts_fragment.*
 import kotlinx.android.synthetic.main.posts_fragment.view.*
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
+
 
 class AllPostsFragment : Fragment() {
 
@@ -65,14 +66,12 @@ class AllPostsFragment : Fragment() {
             .delay(2, TimeUnit.SECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .doOnSubscribe { shimmerViewContainer.startShimmer() }
+            .doFinally { hideShimmer() }
             .subscribeBy(
                 onNext = { list ->
                     adapter.setData(list.toMutableList())
                     if (model.favorites.value == null || model.favorites.value?.let { it.size } == 0)
                         model.favorites.value = list.filter { it.isFavorite }
-                },
-                onComplete = {
-                    hideShimmer()
                 },
                 onError = {
                     AlertDialog.Builder(requireContext())
@@ -85,7 +84,6 @@ class AllPostsFragment : Fragment() {
                         visibility = View.VISIBLE
                         text = getString(R.string.errorText, it.message)
                     }
-                    hideShimmer()
                 }
             )
         compositeDisposable.add(disposable)

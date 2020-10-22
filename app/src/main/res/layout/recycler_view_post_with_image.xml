@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.app.homework_3.PostLayout
+    <com.app.homework_5.PostLayout
         android:id="@+id/postLayoutWithImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
