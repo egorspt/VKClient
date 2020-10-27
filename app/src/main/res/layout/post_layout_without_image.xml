@@ -10,7 +10,7 @@
         android:id="@+id/ownerImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/tinkoff_icon"
+        tools:src="@drawable/tinkoff_icon"
         android:padding="5dp"/>
 
     <TextView
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:textSize="15sp"
         tools:text="@string/postContent"
-        android:padding="5dp"
+        android:layout_margin="5dp"
         android:transitionName="@string/transitionNameText"/>
 
     <ImageButton

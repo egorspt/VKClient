@@ -1,6 +1,5 @@
 package com.app.tinkoff_fintech.activities
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -56,18 +55,16 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onOpenDetail(sharedTextView: TextView, sharedImageView: ImageView?, post: Post) {
-        val options = sharedImageView?.let {
-            ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this,
-                *arrayOf(
-                    Pair.create(sharedImageView as View, getString(R.string.transitionNameImage)),
-                    Pair.create(sharedTextView as View, getString(R.string.transitionNameText))
-                )
-            )
-        }
+        val arrayPairs = if (sharedImageView == null)
+            arrayOf(Pair.create(sharedTextView as View, getString(R.string.transitionNameText)))
+        else arrayOf(
+            Pair.create(sharedImageView as View, getString(R.string.transitionNameImage)),
+            Pair.create(sharedTextView as View, getString(R.string.transitionNameText))
+        )
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, *arrayPairs)
         startActivity(Intent(this, DetailActivity::class.java).apply {
             putExtra(ARG_POST, post)
-        }, options?.toBundle())
+        }, options.toBundle())
     }
 
     override fun changeLikes(itemId: Int, ownerId: Int, isLikes: Int) {

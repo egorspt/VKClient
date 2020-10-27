@@ -42,7 +42,7 @@
         android:id="@+id/contentImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxHeight="300dp"
+        android:maxHeight="100dp"
         tools:src="@drawable/post_image"
         android:layout_margin="5dp"
         android:transitionName="@string/transitionNameImage"/>
