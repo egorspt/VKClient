@@ -1,4 +1,4 @@
-package com.app.homework_5
+package com.app.tinkoff_fintech.fragments
 
 import android.content.Context
 import android.os.Bundle
@@ -13,10 +13,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.app.homework_5.recyclerView.CustomItemDecorator
-import com.app.homework_5.recyclerView.ItemTouchHelperAdapter
-import com.app.homework_5.recyclerView.ItemTouchHelperCallback
-import com.app.homework_5.recyclerView.PostsAdapter
+import com.app.tinkoff_fintech.FragmentInteractor
+import com.app.tinkoff_fintech.Post
+import com.app.tinkoff_fintech.R
+import com.app.tinkoff_fintech.SharedViewModel
+import com.app.tinkoff_fintech.recyclerView.CustomItemDecorator
+import com.app.tinkoff_fintech.recyclerView.ItemTouchHelperAdapter
+import com.app.tinkoff_fintech.recyclerView.ItemTouchHelperCallback
+import com.app.tinkoff_fintech.recyclerView.PostsAdapter
 import kotlinx.android.synthetic.main.posts_fragment.*
 import kotlinx.android.synthetic.main.posts_fragment.view.*
 
@@ -38,9 +42,13 @@ class FavoritePostsFragment : Fragment() {
     ): View = inflater.inflate(R.layout.posts_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val adapter = PostsAdapter(model) { text, image, post ->
-            fragmentInteractor?.onOpenDetail(text, image, post.groupName, post.image, post.text)
-        }
+        val adapter = PostsAdapter(model,
+            { text, image, post ->
+                fragmentInteractor?.onOpenDetail(text, image, post)
+            },
+            { itemId, ownerId, isLikes ->
+                fragmentInteractor?.changeLikes(itemId, ownerId, isLikes)
+            })
         val recyclerView = view.recyclerView
         with(recyclerView) {
             layoutManager = LinearLayoutManager(requireActivity())
@@ -54,12 +62,14 @@ class FavoritePostsFragment : Fragment() {
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         val dividerItemDecoration = DividerItemDecoration(requireActivity(), RecyclerView.VERTICAL)
-        ContextCompat.getDrawable(requireActivity(), R.drawable.divider_post_recycler_view)?.let {
+        ContextCompat.getDrawable(
+            requireActivity(),
+            R.drawable.divider_post_recycler_view
+        )?.let {
             dividerItemDecoration.setDrawable(it)
         }
 
         view.swipeContainer.setOnRefreshListener {
-            model.favorites.value?.let { adapter.update(it) }
             swipeContainer.isRefreshing = false
         }
 
@@ -68,7 +78,7 @@ class FavoritePostsFragment : Fragment() {
             if (posts.isEmpty())
                 errorText.text = getString(R.string.errorText)
             else
-                adapter.update(posts)
+                adapter.setData(posts.toMutableList())
         })
     }
 

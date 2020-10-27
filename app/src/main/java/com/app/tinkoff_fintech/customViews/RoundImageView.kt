@@ -1,10 +1,11 @@
-package com.app.homework_5
+package com.app.tinkoff_fintech.customViews
 
 import android.content.Context
 import android.graphics.*
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.util.AttributeSet
 import androidx.core.graphics.drawable.toBitmap
+import com.app.tinkoff_fintech.R
 import kotlin.properties.Delegates
 
 class RoundImageView @JvmOverloads constructor(
@@ -20,7 +21,9 @@ class RoundImageView @JvmOverloads constructor(
     private var drawableRadius by Delegates.notNull<Float>()
 
     init {
-        val typedArray = context.obtainStyledAttributes(attributeSet, R.styleable.RoundImageView)
+        val typedArray = context.obtainStyledAttributes(attributeSet,
+            R.styleable.RoundImageView
+        )
         borderWidth = typedArray.getDimension(R.styleable.RoundImageView_civ_border_width, 1f)
         borderColor = typedArray.getColor(R.styleable.RoundImageView_civ_border_color, Color.WHITE)
         backgroundPaint.color = typedArray.getColor(R.styleable.RoundImageView_civ_background_color, Color.WHITE)

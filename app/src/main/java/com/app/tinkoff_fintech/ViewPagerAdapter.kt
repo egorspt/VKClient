@@ -1,4 +1,4 @@
-package com.app.homework_5
+package com.app.tinkoff_fintech
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

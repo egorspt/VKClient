@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.app.homework_5.PostLayoutWithoutImage
+    <com.app.tinkoff_fintech.customViews.PostLayoutWithoutImage
         android:id="@+id/postLayoutWithoutImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

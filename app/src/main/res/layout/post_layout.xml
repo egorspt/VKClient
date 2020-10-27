@@ -3,22 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="com.app.homework_5.PostLayout"
+    tools:parentTag="com.app.tinkoff_fintech.customViews.PostLayout"
     android:padding="10dp">
 
-    <com.app.homework_5.RoundImageView
-        android:id="@+id/roundImageView"
+    <com.app.tinkoff_fintech.customViews.RoundImageView
+        android:id="@+id/ownerImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:src="@drawable/tinkoff_icon"
+        tools:src="@drawable/tinkoff_icon"
         android:padding="5dp"/>
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/ownerName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="18sp"
-        android:text="@string/postGroupName"
+        tools:text="@string/postGroupName"
         android:layout_marginStart="5dp"/>
 
     <TextView
@@ -26,24 +26,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="15sp"
-        android:text="@string/postDate"
+        tools:text="@string/postDate"
         android:layout_marginStart="5dp"/>
 
     <TextView
-        android:id="@+id/postContent"
+        android:id="@+id/contentText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="15sp"
-        android:text="@string/postContent"
-        android:padding="5dp"
+        tools:text="@string/postContent"
+        android:layout_margin="5dp"
         android:transitionName="@string/transitionNameText"/>
 
     <ImageView
-        android:id="@+id/postImage"
+        android:id="@+id/contentImage"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:src="@drawable/post_image"
-        android:padding="5dp"
+        android:layout_height="wrap_content"
+        android:maxHeight="300dp"
+        tools:src="@drawable/post_image"
+        android:layout_margin="5dp"
         android:transitionName="@string/transitionNameImage"/>
 
     <ImageButton
@@ -53,7 +54,15 @@
         android:src="@drawable/ic_favorite_border"
         android:background="@null"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"/>
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/countLikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="42"
+        android:textSize="15sp"/>
 
     <ImageButton
         android:id="@+id/buttonComment"
@@ -61,8 +70,16 @@
         android:layout_height="24dp"
         android:src="@drawable/ic_comment"
         android:background="@null"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="30dp" />
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="30dp" />
+
+    <TextView
+        android:id="@+id/countComments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="42"
+        android:textSize="15sp"/>
 
     <ImageButton
         android:id="@+id/buttonShare"

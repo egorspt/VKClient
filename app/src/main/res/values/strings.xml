@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Homework_5</string>
+    <string name="app_name">Tinkoff Fintech</string>
     <string name="textMoveDisclose">+%1$d view elements</string>
     <string name="textMoveHide">hide</string>
     <string name="widthError">Width of view more than width screen</string>
@@ -17,4 +17,10 @@
     <string name="word_yesterday">Вчера</string>
     <string name="transitionNameImage">transitionNameImage</string>
     <string name="transitionNameText">transitionNameText</string>
+    <string name="vkAccessToken">vk_access_token</string>
+    <string name="appPreferences">app_preferences</string>
+    <string name="lifetimeToken">lifetimeToken</string>
+    <string name="lastRefreshToken">lastRefreshToken</string>
+    <string name="titleDetail">Запись со стены</string>
+    <integer name="com_vk_sdk_AppId">7638442</integer>
 </resources>

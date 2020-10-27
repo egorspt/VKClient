@@ -1,4 +1,4 @@
-package com.app.homework_5.recyclerView
+package com.app.tinkoff_fintech.recyclerView
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*

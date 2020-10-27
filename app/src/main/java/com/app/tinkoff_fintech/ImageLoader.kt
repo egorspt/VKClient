@@ -1,4 +1,4 @@
-package com.app.homework_5
+package com.app.tinkoff_fintech
 
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
@@ -11,7 +11,7 @@ import com.bumptech.glide.request.target.Target
 
 class ImageLoader() {
 
-    fun glideLoad(context: FragmentActivity, url: String, holder: ImageView) {
+    fun glideLoad(context: FragmentActivity, url: String?, holder: ImageView) {
         Glide.with(context)
             .load(url)
             .listener(object : RequestListener<Drawable?> {

@@ -5,4 +5,6 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="materialGray">#EEEEEE</color>
     <color name="colorShimmmer">#BDBDBD</color>
+    <color name="colorFavorites">#FF000F</color>
+    <color name="colorNotFavorites">#616161</color>
 </resources>
