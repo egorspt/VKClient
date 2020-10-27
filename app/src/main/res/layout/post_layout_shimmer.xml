@@ -78,7 +78,7 @@
         android:layout_marginLeft="20dp"/>
 
     <ImageButton
-        android:id="@+id/buttonShare"
+        android:id="@+id/buttonRepost"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:background="@null"

@@ -42,13 +42,18 @@ class PostLayout @JvmOverloads constructor(
         measureChildWithMargins(contentImage, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonLike, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonComment, widthMeasureSpec, 0, heightMeasureSpec, height)
-        measureChildWithMargins(buttonShare, widthMeasureSpec, 0, heightMeasureSpec, height)
+        measureChildWithMargins(buttonRepost, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(countLikes, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(countComments, widthMeasureSpec, 0, heightMeasureSpec, height)
+        measureChildWithMargins(countReposts, widthMeasureSpec, 0, heightMeasureSpec, height)
+        val contentTextHeight = if (contentText.text == "") 0 else contentText.measuredHeight
+        val contentImageHeight =
+            if (contentImage.drawable != null) contentImage.drawable.intrinsicHeight * contentImage.measuredWidth / contentImage.drawable.intrinsicWidth
+            else contentImage.measuredHeight
         height =
             ownerImage.measuredHeight + ownerImage.marginTop + ownerImage.marginBottom +
-                    contentText.measuredHeight + contentText.marginTop + contentText.marginBottom +
-                    contentImage.measuredHeight + contentImage.marginTop + contentImage.marginBottom +
+                    contentTextHeight + contentText.marginTop + contentText.marginBottom +
+                    contentImageHeight + contentImage.marginTop + contentImage.marginBottom +
                     buttonLike.measuredHeight + buttonLike.marginTop + buttonLike.marginBottom + paddingTop + paddingBottom
 
         setMeasuredDimension(desiredWidth, resolveSize(height, heightMeasureSpec))
@@ -59,39 +64,42 @@ class PostLayout @JvmOverloads constructor(
         var currentTop = t + paddingTop
 
         ownerImage.layout(
-            currentLeft,
+            currentLeft + ownerImage.marginStart,
             currentTop + ownerImage.marginTop,
-            currentLeft + ownerImage.measuredWidth,
+            currentLeft + ownerImage.marginStart + ownerImage.measuredWidth,
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight
         )
         ownerName.layout(
-            currentLeft + ownerImage.measuredWidth + ownerName.marginStart,
+            currentLeft + ownerImage.marginStart + ownerImage.measuredWidth + ownerName.marginStart,
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight / 2 - ownerName.measuredHeight,
-            currentLeft + ownerImage.measuredWidth + ownerName.marginStart + ownerName.measuredWidth,
+            currentLeft + ownerImage.marginStart + ownerImage.measuredWidth + ownerName.marginStart + ownerName.measuredWidth,
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight / 2
         )
         date.layout(
-            currentLeft + ownerImage.measuredWidth + date.marginStart,
+            currentLeft + ownerImage.marginStart + ownerImage.measuredWidth + date.marginStart,
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight / 2,
-            currentLeft + ownerImage.measuredWidth + date.marginStart + date.measuredWidth,
+            currentLeft + ownerImage.marginStart + ownerImage.measuredWidth + date.marginStart + date.measuredWidth,
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight / 2 + date.measuredHeight
         )
         currentTop += ownerImage.measuredHeight + ownerImage.marginTop + ownerImage.marginBottom
         val contentTextHeight = if (contentText.text == "") 0 else contentText.measuredHeight
         contentText.layout(
-            currentLeft + (measuredWidth - paddingStart - paddingEnd - contentText.measuredWidth) / 2,
+            currentLeft + contentText.marginStart,
             currentTop + contentText.marginTop,
-            currentLeft + contentText.measuredWidth + (measuredWidth - paddingStart - paddingEnd - contentText.measuredWidth) / 2,
+            currentLeft + contentText.marginStart + contentText.measuredWidth,
             currentTop + contentText.marginTop + contentTextHeight
         )
         currentTop += contentTextHeight + contentText.marginTop + contentText.marginBottom
+        val contentImageHeight =
+            if (contentImage.drawable != null) contentImage.drawable.intrinsicHeight * contentImage.measuredWidth / contentImage.drawable.intrinsicWidth
+            else contentImage.measuredHeight
         contentImage.layout(
             currentLeft + contentImage.marginStart,
             currentTop + contentImage.marginTop,
             currentLeft + contentImage.marginStart + contentImage.measuredWidth,
-            currentTop + contentImage.marginTop + contentImage.measuredHeight
+            currentTop + contentImage.marginTop + contentImageHeight
         )
-        currentTop += contentImage.measuredHeight + contentImage.marginTop + contentImage.marginBottom
+        currentTop += contentImageHeight + contentImage.marginTop + contentImage.marginBottom
         buttonLike.layout(
             currentLeft + buttonLike.marginStart,
             currentTop + buttonLike.marginTop,
@@ -119,12 +127,19 @@ class PostLayout @JvmOverloads constructor(
             currentLeft + countComments.measuredWidth,
             currentTop + buttonComment.marginTop + buttonComment.measuredHeight / 2 + countComments.measuredHeight / 2 - 2
         )
-        currentLeft += countComments.measuredWidth + countComments.marginEnd + buttonShare.marginStart
-        buttonShare.layout(
+        currentLeft += countComments.measuredWidth + countComments.marginEnd + buttonRepost.marginStart
+        buttonRepost.layout(
             currentLeft,
-            currentTop + buttonShare.marginTop,
-            currentLeft + buttonShare.measuredWidth,
-            currentTop + buttonShare.marginTop + buttonShare.measuredHeight
+            currentTop + buttonRepost.marginTop,
+            currentLeft + buttonRepost.measuredWidth,
+            currentTop + buttonRepost.marginTop + buttonRepost.measuredHeight
+        )
+        currentLeft += buttonRepost.measuredWidth + buttonRepost.marginEnd + countReposts.marginStart
+        countReposts.layout(
+            currentLeft,
+            currentTop + buttonRepost.marginTop + buttonRepost.measuredHeight / 2 - countReposts.measuredHeight / 2 - 2,
+            currentLeft + countReposts.measuredWidth,
+            currentTop + buttonRepost.marginTop + buttonRepost.measuredHeight / 2 + countReposts.measuredHeight / 2 - 2
         )
     }
 
@@ -137,7 +152,12 @@ class PostLayout @JvmOverloads constructor(
             buttonLike.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_favorite))
             countLikes.setTextColor(ContextCompat.getColor(context, R.color.colorFavorites))
         } else {
-            buttonLike.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.ic_favorite_border))
+            buttonLike.setImageDrawable(
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.ic_favorite_border
+                )
+            )
             countLikes.setTextColor(ContextCompat.getColor(context, R.color.colorNotFavorites))
         }
     }

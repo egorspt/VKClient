@@ -12,7 +12,18 @@ import androidx.core.view.marginStart
 import androidx.core.view.marginTop
 import com.app.tinkoff_fintech.R
 import com.bumptech.glide.Glide
+import kotlinx.android.synthetic.main.post_layout.view.*
 import kotlinx.android.synthetic.main.post_layout_without_image.view.*
+import kotlinx.android.synthetic.main.post_layout_without_image.view.buttonComment
+import kotlinx.android.synthetic.main.post_layout_without_image.view.buttonLike
+import kotlinx.android.synthetic.main.post_layout_without_image.view.buttonRepost
+import kotlinx.android.synthetic.main.post_layout_without_image.view.contentText
+import kotlinx.android.synthetic.main.post_layout_without_image.view.countComments
+import kotlinx.android.synthetic.main.post_layout_without_image.view.countLikes
+import kotlinx.android.synthetic.main.post_layout_without_image.view.countReposts
+import kotlinx.android.synthetic.main.post_layout_without_image.view.date
+import kotlinx.android.synthetic.main.post_layout_without_image.view.ownerImage
+import kotlinx.android.synthetic.main.post_layout_without_image.view.ownerName
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,9 +55,10 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
         measureChildWithMargins(contentText, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonLike, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(buttonComment, widthMeasureSpec, 0, heightMeasureSpec, height)
-        measureChildWithMargins(buttonShare, widthMeasureSpec, 0, heightMeasureSpec, height)
+        measureChildWithMargins(buttonRepost, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(countLikes, widthMeasureSpec, 0, heightMeasureSpec, height)
         measureChildWithMargins(countComments, widthMeasureSpec, 0, heightMeasureSpec, height)
+        measureChildWithMargins(countReposts, widthMeasureSpec, 0, heightMeasureSpec, height)
         height =
             ownerImage.measuredHeight + ownerImage.marginTop + ownerImage.marginBottom +
                     contentText.measuredHeight + contentText.marginTop + contentText.marginBottom +
@@ -60,7 +72,7 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
         var currentTop = t + paddingTop
 
         ownerImage.layout(
-            currentLeft,
+            currentLeft + ownerImage.marginStart,
             currentTop + ownerImage.marginTop,
             currentLeft + ownerImage.measuredWidth,
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight
@@ -78,11 +90,12 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
             currentTop + ownerImage.marginTop + ownerImage.measuredHeight / 2 + date.measuredHeight
         )
         currentTop += ownerImage.measuredHeight + ownerImage.marginTop + ownerImage.marginBottom
+        val contentTextHeight = if (contentText.text == "") 0 else contentText.measuredHeight
         contentText.layout(
-            currentLeft + (measuredWidth - paddingStart - paddingEnd - contentText.measuredWidth) / 2,
+            currentLeft + contentText.marginStart,
             currentTop + contentText.marginTop,
-            currentLeft + contentText.measuredWidth + (measuredWidth - paddingStart - paddingEnd - contentText.measuredWidth) / 2,
-            currentTop + contentText.marginTop + contentText.measuredHeight
+            currentLeft + contentText.marginStart + contentText.measuredWidth,
+            currentTop + contentText.marginTop + contentTextHeight
         )
         currentTop += contentText.measuredHeight + contentText.marginTop + contentText.marginBottom
         buttonLike.layout(
@@ -112,12 +125,19 @@ class PostLayoutWithoutImage @JvmOverloads constructor(
             currentLeft + countComments.measuredWidth,
             currentTop + buttonComment.marginTop + buttonComment.measuredHeight / 2 + countComments.measuredHeight / 2 - 2
         )
-        currentLeft += countComments.measuredWidth + countComments.marginEnd + buttonShare.marginStart
-        buttonShare.layout(
+        currentLeft += countComments.measuredWidth + countComments.marginEnd + buttonRepost.marginStart
+        buttonRepost.layout(
             currentLeft,
-            currentTop + buttonShare.marginTop,
-            currentLeft + buttonShare.measuredWidth,
-            currentTop + buttonShare.marginTop + buttonShare.measuredHeight
+            currentTop + buttonRepost.marginTop,
+            currentLeft + buttonRepost.measuredWidth,
+            currentTop + buttonRepost.marginTop + buttonRepost.measuredHeight
+        )
+        currentLeft += buttonRepost.measuredWidth + buttonRepost.marginEnd + countReposts.marginStart
+        countReposts.layout(
+            currentLeft,
+            currentTop + buttonRepost.marginTop + buttonRepost.measuredHeight / 2 - countReposts.measuredHeight / 2 - 2,
+            currentLeft + countReposts.measuredWidth,
+            currentTop + buttonRepost.marginTop + buttonRepost.measuredHeight / 2 + countReposts.measuredHeight / 2 - 2
         )
     }
 
