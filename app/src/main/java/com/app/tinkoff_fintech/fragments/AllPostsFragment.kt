@@ -1,5 +1,6 @@
 package com.app.tinkoff_fintech.fragments
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
@@ -9,40 +10,78 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.app.tinkoff_fintech.*
+import com.app.tinkoff_fintech.Constants.Companion.LAST_REFRESH_NEWSFEED
+import com.app.tinkoff_fintech.Constants.Companion.NEED_UPDATE_NEWSFEED
+import com.app.tinkoff_fintech.FragmentInteractor
+import com.app.tinkoff_fintech.PreferencesService
+import com.app.tinkoff_fintech.R
+import com.app.tinkoff_fintech.SharedViewModel
+import com.app.tinkoff_fintech.database.DatabaseService
+import com.app.tinkoff_fintech.database.Post
+import com.app.tinkoff_fintech.database.PostDao
+import com.app.tinkoff_fintech.paging.PostViewModel
+import com.app.tinkoff_fintech.paging.PostsPagedListAdapter
 import com.app.tinkoff_fintech.recyclerView.CustomItemDecorator
+import com.app.tinkoff_fintech.recyclerView.DifferCallback
 import com.app.tinkoff_fintech.recyclerView.ItemTouchHelperAdapter
 import com.app.tinkoff_fintech.recyclerView.ItemTouchHelperCallback
-import com.app.tinkoff_fintech.recyclerView.PostsAdapter
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.posts_fragment.*
 import kotlinx.android.synthetic.main.posts_fragment.view.*
-import kotlin.math.abs
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class AllPostsFragment : Fragment() {
 
+    private lateinit var preferences: PreferencesService
+    private lateinit var databasePost: PostDao
     private val model: SharedViewModel by activityViewModels()
+    private val postViewModel: PostViewModel by activityViewModels()
     private var fragmentInteractor: FragmentInteractor? = null
-    private val compositeDisposable = CompositeDisposable()
-    lateinit var adapter: PostsAdapter
+    private lateinit var adapterPaging: PostsPagedListAdapter
+    private var firstOnResume = true
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is FragmentInteractor)
+        if (context is FragmentInteractor) {
             fragmentInteractor = context
+            preferences = PreferencesService(context)
+            preferences.put(NEED_UPDATE_NEWSFEED, true)
+            databasePost = DatabaseService(context).defaultDatabase().postDao()
+            adapterPaging = PostsPagedListAdapter(model,
+                { itemId, ownerId, isLikes ->
+                    fragmentInteractor?.changeLikes(itemId, ownerId, isLikes)
+                },
+                { text, image, post ->
+                    fragmentInteractor?.onOpenDetail(text, image, post)
+                }, DifferCallback()
+            )
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        getVkNewsfeed()
+        if (firstOnResume)
+            firstOpen()
+        else
+            checkRelevanceNewsfeed()
+    }
+
+    private fun firstOpen() {
+        firstOnResume = false
+        preferences.put(NEED_UPDATE_NEWSFEED, true)
+        databasePost.deleteAll()
+            .subscribeOn(Schedulers.io())
+            .subscribe()
     }
 
     override fun onCreateView(
@@ -52,17 +91,27 @@ class AllPostsFragment : Fragment() {
     ): View = inflater.inflate(R.layout.posts_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = PostsAdapter(model, { text, image, post ->
-            fragmentInteractor?.onOpenDetail(text, image, post)
-        }, { itemId, ownerId, isLikes ->
-            fragmentInteractor?.changeLikes(itemId, ownerId, isLikes)
-        })
-        var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireActivity())
-        recyclerView.adapter = adapter
+        initListeners()
+
+        fab.setOnClickListener { recyclerView.scrollToPosition(0); fab.visibility = View.GONE }
+        with(recyclerView) {
+            layoutManager = LinearLayoutManager(requireActivity())
+            adapter = adapterPaging
+            addItemDecoration(CustomItemDecorator(requireActivity()))
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    if (dy >= 0) {
+                        view.fab?.visibility = View.GONE
+                    } else {
+                        view.fab?.visibility = View.VISIBLE
+                    }
+                }
+            })
+        }
 
         val callback =
-            ItemTouchHelperCallback(adapter as ItemTouchHelperAdapter)
+            ItemTouchHelperCallback(adapterPaging as ItemTouchHelperAdapter)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
@@ -73,20 +122,23 @@ class AllPostsFragment : Fragment() {
                 R.drawable.divider_post_recycler_view
             )!!
         )
-        recyclerView.addItemDecoration(
-            CustomItemDecorator(
-                requireActivity()
-            )
-        )
 
         view.swipeContainer.setOnRefreshListener {
-            getVkNewsfeed()
+            preferences.put(LAST_REFRESH_NEWSFEED, Calendar.getInstance().time.time)
+            updateNewsfeed()
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        compositeDisposable.clear()
+    private fun initListeners() {
+        postViewModel.postPagedList.observe(requireActivity(), Observer<PagedList<Post>> { items ->
+            adapterPaging.submitList(items)
+        })
+        postViewModel.errorListener.observe(requireActivity(), Observer<String> { message ->
+            showError(message)
+        })
+        postViewModel.postDatabaseList.observe(requireActivity(), Observer<List<Post>> { list ->
+            addToDatabase(list)
+        })
     }
 
     private fun hideShimmer() {
@@ -94,56 +146,81 @@ class AllPostsFragment : Fragment() {
         shimmerViewContainer.visibility = View.GONE
     }
 
-    private fun getVkNewsfeed() {
-        val disposable = NetworkService().create().getNewsfeed()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doFinally {
-                hideShimmer()
-                swipeContainer.isRefreshing = false
-            }
-            .subscribeBy(
-                {
-                    AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.dialogErrorTitle))
-                        .setMessage(it.message)
-                        .setPositiveButton(getString(R.string.dialogPositiveButtonText)) { dialog, _ ->
-                            dialog.cancel()
-                        }.show()
-                    with(errorText) {
-                        visibility = View.VISIBLE
-                        text = getString(R.string.errorText, it.message)
-                    }
-                },
-                { result ->
-                    val list: MutableList<Post> = mutableListOf()
-                    result.response.items.forEach { item ->
-                        val ownerImage = if (item.source_id > 0)
-                            result.response.profiles.filter { it.id == abs(item.source_id) }[0].photo_100
-                        else result.response.groups.filter { it.id == abs(item.source_id) }[0].photo_200
-                        val ownerName = if (item.source_id > 0)
-                            result.response.profiles.filter { it.id == abs(item.source_id) }[0].first_name + " " +
-                                    result.response.profiles.filter { it.id == abs(item.source_id) }[0].last_name
-                        else result.response.groups.filter { it.id == abs(item.source_id) }[0].name
-                        list.add(
-                            Post(
-                                item.post_id,
-                                item.source_id,
-                                ownerImage,
-                                ownerName,
-                                item.date.toLong(),
-                                item.text,
-                                item.attachments?.get(0)?.photo?.sizes?.last()?.url,
-                                Likes(item.likes.count, item.likes.user_likes),
-                                Comments(item.comments.count),
-                                null
-                            )
-                        )
-                    }
+    //кэширование данных по времени. каждый час обновляется лента
+    private fun checkRelevanceNewsfeed() {
+        val lastRefreshNewsfeedTime = preferences.getLong(LAST_REFRESH_NEWSFEED)
+        val currentTime = Calendar.getInstance().time.time
+        if (lastRefreshNewsfeedTime == 0L) preferences.put(LAST_REFRESH_NEWSFEED, currentTime)
+        if (currentTime - lastRefreshNewsfeedTime > TimeUnit.HOURS.toMillis(1)) {
+            preferences.put(NEED_UPDATE_NEWSFEED, true)
+            updateNewsfeed()
+        } else
+            preferences.put(NEED_UPDATE_NEWSFEED, false)
+    }
 
-                    adapter.setData(list)
-                    model.favorites.value = list.filter { it.likes.userLikes == 1 }
-                })
-        compositeDisposable.add(disposable)
+    @SuppressLint("CheckResult")
+    private fun addToDatabase(list: List<Post>) {
+        databasePost.getAll()
+            .subscribeOn(Schedulers.single())
+            .doFinally {
+                requireActivity().runOnUiThread {
+                    hideShimmer()
+                    swipeContainer.isRefreshing = false
+                }
+            }
+            .subscribe { databaseList ->
+                val tempList = mutableListOf<Post>()
+                list.forEach { post ->
+                    if (databaseList.filter { it.id == post.id }.isEmpty())
+                        tempList.add(post)
+                }
+                tempList.addAll(databaseList)
+                databasePost.deleteAll()
+                    .subscribeBy(
+                        onError = { requireActivity().runOnUiThread { showLocalError(it.message) } },
+                        onComplete = {
+                            requireActivity().runOnUiThread { model.favorites.value = tempList.filter { it.likes.userLikes == 1 } }
+                            databasePost.insertAll(tempList)
+                                .subscribeBy(
+                                    onError = {
+                                        showLocalError(it.message)
+                                    }
+                                )
+                        }
+                    )
+
+            }
+    }
+
+    private fun updateNewsfeed() {
+        errorText.visibility = View.GONE
+        preferences.put(NEED_UPDATE_NEWSFEED, true)
+        databasePost.deleteAll()
+            .subscribeOn(Schedulers.io())
+            .subscribe()
+        postViewModel.invalidate()
+    }
+
+    private fun showError(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(getString(R.string.dialogErrorTitle))
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.dialogPositiveButtonText)) { dialog, _ ->
+                dialog.cancel()
+            }.show()
+        with(errorText) {
+            visibility = View.VISIBLE
+            text = getString(R.string.errorText, message)
+        }
+        hideShimmer()
+        swipeContainer.isRefreshing = false
+    }
+
+    private fun showLocalError(message: String?) {
+        AlertDialog.Builder(activity)
+            .setTitle(getString(R.string.dialogErrorTitle))
+            .setMessage(message)
+            .show()
     }
 }
+

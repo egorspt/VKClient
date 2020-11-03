@@ -7,10 +7,12 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import com.app.tinkoff_fintech.ImageLoader
 import com.app.tinkoff_fintech.NetworkService
-import com.app.tinkoff_fintech.Post
+import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.R
+import com.app.tinkoff_fintech.database.DatabaseService
 import com.bumptech.glide.Glide
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.detail_activity.*
 import kotlinx.android.synthetic.main.post_layout.view.*
@@ -18,7 +20,7 @@ import kotlinx.android.synthetic.main.post_layout.view.*
 class DetailActivity : AppCompatActivity() {
 
     companion object {
-        const val ARG_POST = "arg_post"
+        const val ARG_ID_POST = "arg_id_post"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,9 +28,33 @@ class DetailActivity : AppCompatActivity() {
         setContentView(R.layout.detail_activity)
         supportActionBar?.title = getString(R.string.titleDetail)
 
-        val post = intent.getSerializableExtra(ARG_POST) as Post
+        val idPost = intent.getIntExtra(ARG_ID_POST, 0)
+        DatabaseService(this).defaultDatabase().postDao().findById(idPost)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy( { error ->
+                val message = error.message
+            }, {post ->
+                fillPost(post)
+            }
+            )
+
         supportStartPostponedEnterTransition()
 
+        postLayout.contentImage.setOnClickListener {
+            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                this,
+                postLayout.contentImage,
+                ViewCompat.getTransitionName(postLayout.contentImage)!!
+            )
+            startActivity(Intent(this, ImageActivity::class.java).apply {
+                putExtra(ARG_ID_POST, idPost)
+            }, options.toBundle())
+        }
+
+    }
+
+    private fun fillPost(post: Post) {
         with(postLayout) {
             contentText.text = post.text
             ownerName.text = post.ownerName
@@ -49,18 +75,6 @@ class DetailActivity : AppCompatActivity() {
             }
         }
         ImageLoader().glideLoad(this, post.image, postLayout.contentImage)
-
-        postLayout.contentImage.setOnClickListener {
-            val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                this,
-                postLayout.contentImage,
-                ViewCompat.getTransitionName(postLayout.contentImage)!!
-            )
-            startActivity(Intent(this, ImageActivity::class.java).apply {
-                putExtra(ARG_POST, post)
-            }, options.toBundle())
-        }
-
     }
 
     private fun changeLikes(post: Post, isLikes: Boolean) {

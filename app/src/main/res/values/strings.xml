@@ -17,10 +17,11 @@
     <string name="word_yesterday">Вчера</string>
     <string name="transitionNameImage">transitionNameImage</string>
     <string name="transitionNameText">transitionNameText</string>
-    <string name="vkAccessToken">vk_access_token</string>
-    <string name="appPreferences">app_preferences</string>
     <string name="lifetimeToken">lifetimeToken</string>
-    <string name="lastRefreshToken">lastRefreshToken</string>
     <string name="titleDetail">Запись со стены</string>
+    <string name="nameTab1">Новости</string>
+    <string name="nameTab2">Избранное</string>
     <integer name="com_vk_sdk_AppId">7638442</integer>
+    <string name="needUpdateNewsfeed">needUpdateNewsfeed</string>
+    <integer name="pagingAdapterPageSize">20</integer>
 </resources>

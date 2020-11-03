@@ -1,4 +1,4 @@
-package com.app.tinkoff_fintech.recyclerView
+package com.app.tinkoff_fintech.paging
 
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.R
 import com.app.tinkoff_fintech.SharedViewModel
+import com.app.tinkoff_fintech.recyclerView.ItemTouchHelperAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -21,25 +23,13 @@ import kotlinx.android.synthetic.main.post_layout_without_image.view.*
 import kotlinx.android.synthetic.main.recycler_view_post_with_image.view.*
 import kotlinx.android.synthetic.main.recycler_view_post_without_image.view.*
 
-class PostsAdapter(
+class PostsPagedListAdapter(
     private val sharedViewModel: SharedViewModel,
+    private val changeLikes: (Int, Int, Int) -> Unit,
     private val clickListener: (TextView, ImageView?, Post) -> Unit,
-    private val changeLikes: (Int, Int, Int) -> Unit
-) : RecyclerView.Adapter<PostsAdapter.BaseViewHolder>(),
+    private val differ: DiffUtil.ItemCallback<Post>
+) : PagedListAdapter<Post, PostsPagedListAdapter.BaseViewHolder>(differ),
     ItemTouchHelperAdapter {
-
-    private val differCallback = object : DiffUtil.ItemCallback<Post>() {
-
-        override fun areItemsTheSame(oldPost: Post, newPost: Post) = oldPost.id == newPost.id
-
-        override fun areContentsTheSame(oldPost: Post, newPost: Post): Boolean {
-            return oldPost.ownerName == newPost.ownerName &&
-                    oldPost.date == oldPost.date &&
-                    oldPost.text == newPost.text &&
-                    oldPost.likes.userLikes == newPost.likes.userLikes &&
-                    oldPost.image == newPost.image
-        }
-    }
 
     companion object {
         private const val TYPE_WITH_IMAGE = 0
@@ -47,18 +37,9 @@ class PostsAdapter(
     }
 
     private var mainList = emptyList<Post>().toMutableList()
-    private var differ = AsyncListDiffer(
-        this,
-        differCallback
-    )
-    private var posts: MutableList<Post>
-        set(value) {
-            differ.submitList(value)
-        }
-        get() = differ.currentList
 
     override fun getItemViewType(position: Int) =
-        if (posts[position].image == null) TYPE_WITHOUT_IMAGE else TYPE_WITH_IMAGE
+        if (getItem(position)!!.image == null) TYPE_WITHOUT_IMAGE else TYPE_WITH_IMAGE
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         return when (viewType) {
@@ -87,12 +68,10 @@ class PostsAdapter(
 
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         when (holder) {
-            is ViewHolderWithImage -> holder.bind(posts[position])
-            is ViewHolderWithoutImage -> holder.bind(posts[position])
+            is ViewHolderWithImage -> holder.bind(getItem(position)!!)
+            is ViewHolderWithoutImage -> holder.bind(getItem(position)!!)
         }
     }
-
-    override fun getItemCount() = differ.currentList.size
 
     abstract class BaseViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
@@ -163,7 +142,7 @@ class PostsAdapter(
     }
 
     private fun changeLikes(id: Int, isLiked: Boolean) {
-        val tempPosts = posts.toMutableList()
+        val tempPosts = currentList!!
         var isLikes = 0
         val itemById = tempPosts.filter { it.id == id }[0]
         val positionItem = tempPosts.indexOf(itemById)
@@ -171,37 +150,29 @@ class PostsAdapter(
             true -> {
                 itemById.likes.userLikes = 0
                 itemById.likes.count -=  1
-                posts = tempPosts
                 isLikes = 0
             }
             false -> {
                 itemById.likes.userLikes = 1
                 itemById.likes.count +=  1
-                posts = tempPosts
                 isLikes = 1
             }
         }
+        submitList(tempPosts)
         notifyItemChanged(positionItem)
-        changeLikes(posts[positionItem].id, posts[positionItem].ownerId, isLikes)
+        changeLikes(itemById.id, itemById.ownerId, isLikes)
         sharedViewModel.favorites.value = tempPosts.filter { it.likes.userLikes == 1 }
     }
 
     override fun onItemDismiss(position: Int, direction: Int) {
+        val post = currentList!![position]!!
         when (direction) {
             ItemTouchHelper.START -> {
-                changeLikes(posts[position].id, true)
+                changeLikes(post.id, true)
             }
             ItemTouchHelper.END -> {
-                changeLikes(posts[position].id, false)
+                changeLikes(post.id, false)
             }
         }
-    }
-
-    fun setData(posts: List<Post>) {
-        val tempPosts = posts.toMutableList()
-        tempPosts.sortBy { it.date }
-        tempPosts.reverse()
-        mainList = mutableListOf<Post>().apply { tempPosts.forEach { add(it) } }
-        this.posts = tempPosts
     }
 }

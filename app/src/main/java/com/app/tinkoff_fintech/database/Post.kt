@@ -1,12 +1,14 @@
-package com.app.tinkoff_fintech
+package com.app.tinkoff_fintech.database
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import java.io.Serializable
 
-data class Posts(
-    val posts: List<Post>
-)
-
+@Entity(tableName = "post")
+@TypeConverters(PostsConverter::class)
 data class Post(
+    @PrimaryKey
     val id: Int,
     val ownerId: Int,
     val ownerImage: String,
@@ -16,7 +18,7 @@ data class Post(
     val image: String?,
     var likes: Likes,
     var comments: Comments,
-    var share: Share?
+    var reposts: Reposts?
 ) : Serializable
 
 data class Likes(
@@ -28,6 +30,6 @@ data class Comments(
     var count: Int
 ) : Serializable
 
-data class Share(
+data class Reposts(
     var count: Int
 ) : Serializable

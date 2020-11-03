@@ -1,19 +1,20 @@
 package com.app.tinkoff_fintech.activities
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.app.tinkoff_fintech.*
-import com.app.tinkoff_fintech.activities.DetailActivity.Companion.ARG_POST
+import com.app.tinkoff_fintech.activities.DetailActivity.Companion.ARG_ID_POST
+import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.fragments.AllPostsFragment
 import com.app.tinkoff_fintech.fragments.FavoritePostsFragment
 import com.google.android.material.tabs.TabLayoutMediator
@@ -22,6 +23,7 @@ import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -30,10 +32,16 @@ import java.util.*
 class MainActivity : AppCompatActivity(),
     FragmentInteractor {
 
+    companion object {
+        const val VK_ACCESS_TOKEN = "vkAccessToken"
+        const val LAST_REFRESH_TOKEN = "lastRefreshToken"
+    }
+
     private val model: SharedViewModel by viewModels()
     private val tabs = mutableListOf("Новости", "Избранное")
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme_NoActionBar)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkAccessToken()
@@ -49,7 +57,7 @@ class MainActivity : AppCompatActivity(),
         navView.menu.getItem(1).isVisible = isFavorites
         if (isFavorites) {
             if (tabLayout.tabCount == 1)
-                tabLayout.addTab(tabLayout.newTab().apply { text = "Избранное" })
+                tabLayout.addTab(tabLayout.newTab().apply { text = getString(R.string.nameTab2) })
         } else if (tabLayout.tabCount != 1)
             tabLayout.removeTabAt(1)
     }
@@ -63,7 +71,7 @@ class MainActivity : AppCompatActivity(),
         )
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, *arrayPairs)
         startActivity(Intent(this, DetailActivity::class.java).apply {
-            putExtra(ARG_POST, post)
+            putExtra(ARG_ID_POST, post.id)
         }, options.toBundle())
     }
 
@@ -83,18 +91,42 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun checkAccessToken() {
-        val lastTimeLongRefreshToken =
-            getSharedPreferences(getString(R.string.appPreferences), Context.MODE_PRIVATE)
-                .getLong(getString(R.string.lastRefreshToken), 0L)
-        if (lastTimeLongRefreshToken == 0L) {
-            vkLogin()
-        } else {
-            val lastTimeDayRefreshToken =
-                (Calendar.getInstance().time.time.toDouble() - lastTimeLongRefreshToken.toDouble()) / 1000 / 60 / 60 / 24
-            if (lastTimeDayRefreshToken > 1)
-                vkLogin()
-            else initApp()
-        }
+        AccessToken.accessToken = PreferencesService(this).getString(VK_ACCESS_TOKEN)
+        NetworkService().createForSecure()
+            .serviceKey()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onError = {
+                    showError(it.message)
+                },
+                onSuccess = {
+                    NetworkService().createWithoutInterceptor()
+                        .checkToken(AccessToken.accessToken, it.access_token)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeBy(
+                            onError = {error ->
+                                showError(error.message)
+                            },
+                            onSuccess = {checkToken ->
+                                if (checkToken.error != null) {
+                                    showError(checkToken.error.error_msg)
+                                    return@subscribeBy
+                                }
+                                if (checkToken.response.success == 0)
+                                    vkLogin()
+                                else initApp()
+                            }
+                        )
+                }
+            )
+    }
+
+    private fun showError(message: String?) {
+        AlertDialog.Builder(this)
+            .setMessage(getString(R.string.errorText, message))
+            .show()
     }
 
     private fun vkLogin() {
@@ -102,10 +134,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initApp() {
-        AccessToken.value = getSharedPreferences(
-            getString(R.string.appPreferences),
-            Context.MODE_PRIVATE
-        ).getString(getString(R.string.vkAccessToken), "")!!
+        AccessToken.accessToken = PreferencesService(this).getString(VK_ACCESS_TOKEN)
         val viewPagerAdapter = ViewPagerAdapter(
             supportFragmentManager, lifecycle, listOf(
                 AllPostsFragment(),
@@ -141,14 +170,9 @@ class MainActivity : AppCompatActivity(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-                val preferences =
-                    getSharedPreferences(getString(R.string.appPreferences), Context.MODE_PRIVATE)
-                preferences.edit()
-                    .putString(getString(R.string.vkAccessToken), token.accessToken)
-                    .apply()
-                preferences.edit()
-                    .putLong(getString(R.string.lastRefreshToken), Calendar.getInstance().time.time)
-                    .apply()
+                val preferences = PreferencesService(this@MainActivity)
+                preferences.put(VK_ACCESS_TOKEN, token.accessToken)
+                preferences.put(LAST_REFRESH_TOKEN, Calendar.getInstance().time.time)
                 initApp()
             }
 

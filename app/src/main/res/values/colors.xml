@@ -7,4 +7,5 @@
     <color name="colorShimmmer">#BDBDBD</color>
     <color name="colorFavorites">#FF000F</color>
     <color name="colorNotFavorites">#616161</color>
+    <color name="colorMaterialBlack">#212121</color>
 </resources>
