@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.app.tinkoff_fintech.activities.MainActivity"
+            android:name="com.app.tinkoff_fintech.mainActivity.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.Launcher">
             <intent-filter>

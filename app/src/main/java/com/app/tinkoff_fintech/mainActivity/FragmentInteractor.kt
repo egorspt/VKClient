@@ -1,4 +1,4 @@
-package com.app.tinkoff_fintech
+package com.app.tinkoff_fintech.mainActivity
 
 import android.widget.ImageView
 import android.widget.TextView

@@ -9,5 +9,5 @@ class DatabaseService(val context: Context) {
         const val DEFAULT_DATABASE_NAME = "defaultDatabaseName"
     }
 
-    fun defaultDatabase() = Room.databaseBuilder(context, AppDatabase::class.java,DEFAULT_DATABASE_NAME).build()
+    fun defaultDatabase() = Room.databaseBuilder(context, AppDatabase::class.java, DEFAULT_DATABASE_NAME).build()
 }

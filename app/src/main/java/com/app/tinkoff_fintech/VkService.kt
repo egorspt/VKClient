@@ -5,6 +5,7 @@ import com.app.tinkoff_fintech.vk.ResponseLikes
 import com.app.tinkoff_fintech.vk.ResponseNewsfeed
 import com.app.tinkoff_fintech.vk.ServiceKey
 import io.reactivex.Single
+import okhttp3.Callback
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET

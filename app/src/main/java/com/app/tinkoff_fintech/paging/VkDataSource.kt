@@ -12,6 +12,8 @@ import com.app.tinkoff_fintech.database.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import okhttp3.Callback
+import okhttp3.ResponseBody
 import kotlin.math.abs
 
 class VkDataSource(

@@ -1,4 +1,4 @@
-package com.app.tinkoff_fintech
+package com.app.tinkoff_fintech.mainActivity
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager

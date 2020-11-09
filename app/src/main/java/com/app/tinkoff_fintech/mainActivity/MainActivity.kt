@@ -1,4 +1,4 @@
-package com.app.tinkoff_fintech.activities
+package com.app.tinkoff_fintech.mainActivity
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,6 +13,7 @@ import androidx.core.util.Pair
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.app.tinkoff_fintech.*
+import com.app.tinkoff_fintech.activities.DetailActivity
 import com.app.tinkoff_fintech.activities.DetailActivity.Companion.ARG_ID_POST
 import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.fragments.AllPostsFragment
@@ -27,7 +28,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-
 
 class MainActivity : AppCompatActivity(),
     FragmentInteractor {
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity(),
                             },
                             onSuccess = {checkToken ->
                                 if (checkToken.error != null) {
-                                    showError(checkToken.error.error_msg)
+                                    vkLogin()
                                     return@subscribeBy
                                 }
                                 if (checkToken.response.success == 0)
@@ -135,12 +135,13 @@ class MainActivity : AppCompatActivity(),
 
     private fun initApp() {
         AccessToken.accessToken = PreferencesService(this).getString(VK_ACCESS_TOKEN)
-        val viewPagerAdapter = ViewPagerAdapter(
-            supportFragmentManager, lifecycle, listOf(
-                AllPostsFragment(),
-                FavoritePostsFragment()
+        val viewPagerAdapter =
+            ViewPagerAdapter(
+                supportFragmentManager, lifecycle, listOf(
+                    AllPostsFragment(),
+                    FavoritePostsFragment()
+                )
             )
-        )
         with(viewPager) {
             adapter = viewPagerAdapter
             registerOnPageChangeCallback(viewPagerListener)
@@ -185,5 +186,4 @@ class MainActivity : AppCompatActivity(),
         }
     }
 }
-
 

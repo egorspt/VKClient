@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.app.tinkoff_fintech.FragmentInteractor
+import com.app.tinkoff_fintech.mainActivity.FragmentInteractor
 import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.R
 import com.app.tinkoff_fintech.SharedViewModel
