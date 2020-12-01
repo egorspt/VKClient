@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:padding="10dp">
 
-    <com.app.tinkoff_fintech.customViews.RoundImageView
+    <com.app.tinkoff_fintech.ui.views.customViews.RoundImageView
         android:id="@+id/ownerImage"
         android:layout_width="80dp"
         android:layout_height="80dp"
@@ -55,37 +55,34 @@
         app:layout_constraintTop_toBottomOf="@+id/contentText"
         tools:layout_editor_absoluteX="10dp"/>
 
-    <ImageButton
-        android:id="@+id/buttonLike"
+    <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginTop="10dp"
         android:background="@null"
-        android:src="@drawable/ic_favorite_border"
+        android:src="@drawable/heart"
         app:layout_constraintStart_toStartOf="@+id/contentImage"
         app:layout_constraintTop_toBottomOf="@+id/contentImage"
-        android:layout_marginLeft="10dp"/>
+        android:layout_marginStart="10dp"/>
 
-    <ImageButton
-        android:id="@+id/buttonComment"
+    <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:background="@null"
-        android:src="@drawable/ic_comment"
-        app:layout_constraintStart_toEndOf="@+id/buttonLike"
+        android:src="@drawable/comment"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contentImage"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginStart="100dp"/>
 
-    <ImageButton
-        android:id="@+id/buttonRepost"
+    <ImageView
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:background="@null"
         android:src="@drawable/share"
-        app:layout_constraintStart_toEndOf="@+id/buttonComment"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/contentImage"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="20dp"/>
+        android:layout_marginStart="200dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

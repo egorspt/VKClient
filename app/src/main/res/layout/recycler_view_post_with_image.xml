@@ -3,8 +3,8 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.app.tinkoff_fintech.customViews.PostLayout
-        android:id="@+id/postLayoutWithImage"
+    <com.app.tinkoff_fintech.ui.views.customViews.PostLayout
+        android:id="@+id/postLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

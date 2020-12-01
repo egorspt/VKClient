@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="com.app.tinkoff_fintech.customViews.PostLayoutWithoutImage"
+    tools:parentTag="com.app.tinkoff_fintech.ui.views.customViews.PostLayoutWithoutImage"
     android:padding="10dp">
 
-    <com.app.tinkoff_fintech.customViews.RoundImageView
+    <com.app.tinkoff_fintech.ui.views.customViews.RoundImageView
         android:id="@+id/ownerImage"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -17,9 +17,10 @@
         android:id="@+id/ownerName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:textSize="16sp"
         tools:text="@string/postGroupName"
-        android:layout_marginStart="10dp"/>
+        android:layout_marginStart="10dp"
+        android:textColor="@color/materialBlack"/>
 
     <TextView
         android:id="@+id/date"
@@ -39,12 +40,11 @@
         android:transitionName="@string/transitionNameText"
         android:layout_marginTop="10dp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/buttonLike"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_favorite_border"
-        android:background="@null"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="5dp"
         android:layout_marginStart="10dp"
@@ -57,12 +57,11 @@
         tools:text="42"
         android:textSize="15sp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/buttonComment"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:src="@drawable/ic_comment"
-        android:background="@null"
+        android:src="@drawable/comment"
         android:layout_marginTop="11dp"
         android:layout_marginEnd="5dp"
         android:layout_marginStart="30dp" />
@@ -74,12 +73,11 @@
         tools:text="42"
         android:textSize="15sp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/buttonRepost"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
         android:src="@drawable/share"
-        android:background="@null"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="30dp" />
 

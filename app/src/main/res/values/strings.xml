@@ -4,12 +4,14 @@
     <string name="textMoveHide">hide</string>
     <string name="widthError">Width of view more than width screen</string>
 
+    <string name="example">Пример</string>
     <string name="postGroupName">Tinkoff Education</string>
     <string name="postDate">12 minutes ago</string>
     <string name="postContent">Нечего из-за всякого говна переживать. Жизнь продолжается.</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="navigationNewsline">Новости</string>
     <string name="navigationFavorites">Избранное</string>
+    <string name="navigationProfile">Профиль</string>
     <string name="dialogErrorTitle">Ошибка</string>
     <string name="dialogPositiveButtonText">OK</string>
     <string name="errorText">%1$s\nСервер недоступен\nПопробуйте позже</string>
@@ -23,5 +25,40 @@
     <string name="nameTab2">Избранное</string>
     <integer name="com_vk_sdk_AppId">7638442</integer>
     <string name="needUpdateNewsfeed">needUpdateNewsfeed</string>
-    <integer name="pagingAdapterPageSize">20</integer>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="personName">%1$s %2$s</string>
+    <string name="profileDate">День рождения: %1$s</string>
+    <string name="profileCareer">Карьера: %1$s</string>
+    <plurals name="followersCount">
+        <item quantity="zero">Нет подписчиков</item>
+        <item quantity="one">%d подписчик</item>
+        <item quantity="few">%d подписчика</item>
+        <item quantity="many">%d подписчиков</item>
+        <item quantity="other">%d подписчиков</item>
+    </plurals>
+
+    <plurals name="commentsCount">
+        <item quantity="zero">НЕТ КОММЕНТАРИЕВ</item>
+        <item quantity="one">%d КОММЕНТАРИЙ</item>
+        <item quantity="few">%d КОММЕНТАРИЯ</item>
+        <item quantity="many">%d КОММЕНТАРИЕВ</item>
+        <item quantity="other">%d КОММЕНТАРИЕВ</item>
+    </plurals>
+
+    <string name="dateFormatToday">Сегодня в %1$s</string>
+    <string name="dateFormatYesterday">Вчера в %1$s</string>
+    <string name="dateFormatLong">Был в сети %1$s</string>
+    <string name="error_tap_to_retry">Ошибка! Нажмите, чтобы повторить</string>
+    <string name="new_note_text">Что у Вас нового?</string>
+
+    <string name="commentSortInteresting">Сначала интересные</string>
+    <string name="commentSortOld">Сначала старые</string>
+    <string name="commentSortNew">Сначала новые</string>
+    <string name="newPostHint">Что у Вас нового?</string>
+    <string name="editCommentHint">Комментарий</string>
+    <string name="newPostSettingsOnlyFriends">Видно только друзьям</string>
+    <string name="newPostSettingsComments">Включить комментирование</string>
+    <string name="newPostSettingsNotifications">Не отправлять уведомления</string>
+    <string name="tools_long_message">Оооооооооочееееееень длиииииииииинное сообщение</string>
 </resources>

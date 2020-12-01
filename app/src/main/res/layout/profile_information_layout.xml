@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:parentTag="com.app.tinkoff_fintech.ui.views.customViews.ProfileInformationLayout">
+
+    <TextView
+        android:id="@+id/domain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="@color/materialBlack"
+        android:textStyle="bold"
+        tools:text="@string/example"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="15dp"/>
+
+    <View
+        android:id="@+id/delimiter1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/materialLightGray"/>
+
+    <com.app.tinkoff_fintech.ui.views.customViews.RoundImageView
+        android:id="@+id/photo"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="15dp"
+        tools:src="@drawable/tinkoff_icon"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/materialBlack"
+        tools:text="@string/example"
+        android:layout_marginStart="15dp"/>
+
+    <TextView
+        android:id="@+id/lastSeen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        tools:text="@string/example"
+        android:layout_marginStart="15dp"/>
+
+    <View
+        android:id="@+id/delimiter2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:background="@color/materialLightGray"/>
+
+    <ImageView
+        android:id="@+id/iconDate"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_date"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        tools:text="@string/profileDate"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+    <ImageView
+        android:id="@+id/iconCountry"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_country"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/country"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+    <ImageView
+        android:id="@+id/iconCity"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_city"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+    <ImageView
+        android:id="@+id/iconEducation"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_education"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/education"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+    <ImageView
+        android:id="@+id/iconFollowers"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_followers"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/followers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        tools:text="@string/example"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+    <ImageView
+        android:id="@+id/iconCareer"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_career"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/career"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        tools:text="@string/profileCareer"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+    <ImageView
+        android:id="@+id/iconAbout"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_about"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:id="@+id/about"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        tools:text="@string/tools_long_message"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="46dp"/>
+
+</merge>

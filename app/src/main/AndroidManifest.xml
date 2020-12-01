@@ -3,9 +3,11 @@
     package="com.app.tinkoff_fintech">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -13,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.app.tinkoff_fintech.mainActivity.MainActivity"
+            android:name="com.app.tinkoff_fintech.ui.views.activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.Launcher">
             <intent-filter>
@@ -22,8 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.app.tinkoff_fintech.activities.DetailActivity"/>
-        <activity android:name="com.app.tinkoff_fintech.activities.ImageActivity"/>
+        <activity android:name="com.app.tinkoff_fintech.detail.DetailActivity" />
+        <activity android:name="com.app.tinkoff_fintech.ui.views.activities.ImageActivity" />
+        <activity android:name="com.app.tinkoff_fintech.ui.views.activities.NewPostActivity" />
     </application>
 
 </manifest>

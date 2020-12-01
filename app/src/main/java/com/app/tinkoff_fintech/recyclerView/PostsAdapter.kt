@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.SharedViewModel
+import com.app.tinkoff_fintech.viewmodels.SharedViewModel
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -26,7 +26,7 @@ class PostsAdapter(
     private val clickListener: (TextView, ImageView?, Post) -> Unit,
     private val changeLikes: (Int, Int, Int) -> Unit
 ) : RecyclerView.Adapter<PostsAdapter.BaseViewHolder>(),
-    ItemTouchHelperAdapter {
+    SwipeListener {
 
     private val differCallback = object : DiffUtil.ItemCallback<Post>() {
 
@@ -104,7 +104,7 @@ class PostsAdapter(
 
         fun bind(post: Post) {
             val text = post.text ?: ""
-            with(itemView.postLayoutWithImage) {
+            with(itemView.postLayout) {
                 setOwnerImage(post.ownerImage)
                 setOwnerName(post.ownerName)
                 setContentPost(text)
@@ -186,7 +186,7 @@ class PostsAdapter(
         sharedViewModel.favorites.value = tempPosts.filter { it.likes.userLikes == 1 }
     }
 
-    override fun onItemDismiss(position: Int, direction: Int) {
+    override fun onSwipe(position: Int, direction: Int) {
         when (direction) {
             ItemTouchHelper.START -> {
                 changeLikes(posts[position].id, true)

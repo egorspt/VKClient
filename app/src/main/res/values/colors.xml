@@ -2,10 +2,13 @@
 <resources>
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
-    <color name="materialGray">#EEEEEE</color>
+    <color name="colorAccent">#2196F3</color>
     <color name="colorShimmmer">#BDBDBD</color>
     <color name="colorFavorites">#FF000F</color>
     <color name="colorNotFavorites">#616161</color>
-    <color name="colorMaterialBlack">#212121</color>
+    <color name="materialBlack">#212121</color>
+    <color name="materialLightGray">#EEEEEE</color>
+    <color name="materialGray">#757575</color>
+    <color name="dividerBorder">#E0E0E0</color>
+    <color name="dividerIn">#E8E8E8</color>
 </resources>

@@ -1,0 +1,65 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:parentTag="com.app.tinkoff_fintech.ui.views.customViews.CommentLayout">
+
+    <com.app.tinkoff_fintech.ui.views.customViews.RoundImageView
+        android:id="@+id/photo"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_margin="10dp"
+        tools:src="@drawable/tinkoff_icon" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/materialBlack"
+        android:textStyle="bold"
+        tools:text="@string/example" />
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="85dp"
+        tools:text="string/string/string/string/string/string/swer wer w e"
+        android:textColor="@color/materialBlack"/>
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:scaleType="fitStart"
+        tools:src="@drawable/tinkoff_icon" />
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        tools:text="string/exa"
+        android:textSize="13dp"/>
+
+    <ImageButton
+        android:id="@+id/buttonLike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="10dp"
+        android:background="@null"
+        android:src="@drawable/ic_favorite_border_comment" />
+
+    <TextView
+        android:id="@+id/countLikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="13sp"
+        tools:text="42" />
+
+
+</merge>

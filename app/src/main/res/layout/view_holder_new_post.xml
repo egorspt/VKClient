@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <com.app.tinkoff_fintech.ui.views.customViews.RoundImageView
+        android:id="@+id/ownerImage"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:src="@drawable/tinkoff_icon"
+        android:layout_marginEnd="10dp"/>
+
+    <TextView
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="@drawable/text_view_rounded_corner"
+        android:layout_toEndOf="@+id/ownerImage"
+        android:layout_toStartOf="@+id/pickPhoto"
+        android:text="@string/new_note_text"
+        android:textSize="16sp"
+        android:textColor="@color/materialGray"
+        android:paddingStart="15dp"
+        android:paddingTop="6dp"/>
+
+    <ImageView
+        android:id="@+id/pickPhoto"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_image"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="15dp"
+        android:layout_centerVertical="true"
+        android:padding="5dp"/>
+
+</RelativeLayout>

@@ -6,39 +6,41 @@ import com.google.gson.reflect.TypeToken
 
 class PostsConverter {
 
+    private val gson = Gson()
+
     @TypeConverter
     fun fromLikes(likes: Likes): String {
         val type = object : TypeToken<Likes>() {}.type
-        return Gson().toJson(likes, type)
+        return gson.toJson(likes)
     }
 
     @TypeConverter
     fun toLikes(likesString: String?): Likes {
         val type = object : TypeToken<Likes>() {}.type
-        return Gson().fromJson<Likes>(likesString, type)
+        return gson.fromJson(likesString, Likes::class.java)
     }
 
     @TypeConverter
     fun fromComments(comments: Comments): String {
         val type = object : TypeToken<Comments>() {}.type
-        return Gson().toJson(comments, type)
+        return gson.toJson(comments, type)
     }
 
     @TypeConverter
     fun toComments(commentsString: String?): Comments {
         val type = object : TypeToken<Comments>() {}.type
-        return Gson().fromJson<Comments>(commentsString, type)
+        return gson.fromJson<Comments>(commentsString, type)
     }
 
     @TypeConverter
     fun fromReposts(reposts: Reposts): String {
         val type = object : TypeToken<Reposts>() {}.type
-        return Gson().toJson(reposts, type)
+        return gson.toJson(reposts, type)
     }
 
     @TypeConverter
     fun toReposts(repostsString: String?): Reposts {
         val type = object : TypeToken<Reposts>() {}.type
-        return Gson().fromJson<Reposts>(repostsString, type)
+        return gson.fromJson<Reposts>(repostsString, type)
     }
 }

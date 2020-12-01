@@ -3,9 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:parentTag="com.app.tinkoff_fintech.customViews.PostLayout">
+    tools:parentTag="com.app.tinkoff_fintech.ui.views.customViews.PostLayout">
 
-    <com.app.tinkoff_fintech.customViews.RoundImageView
+    <com.app.tinkoff_fintech.ui.views.customViews.RoundImageView
         android:id="@+id/ownerImage"
         android:layout_width="60dp"
         android:layout_height="60dp"
@@ -16,9 +16,13 @@
         android:id="@+id/ownerName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        tools:text="@string/postGroupName"
-        android:layout_marginStart="10dp"/>
+        android:textSize="16sp"
+        tools:text="@string/tools_long_message"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="90dp"
+        android:textColor="@color/materialBlack"
+        android:ellipsize="end"
+        android:singleLine="true"/>
 
     <TextView
         android:id="@+id/date"
@@ -34,6 +38,7 @@
         android:layout_height="wrap_content"
         android:textSize="15sp"
         tools:text="@string/postContent"
+        android:textColor="@color/materialBlack"
         android:layout_marginTop="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
@@ -48,56 +53,76 @@
         android:transitionName="@string/transitionNameImage"
         android:layout_marginTop="10dp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/buttonLike"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_favorite_border"
-        android:background="@null"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="10dp"/>
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/heart"
+        android:paddingTop="10dp"
+        android:paddingStart="10dp"
+        android:paddingBottom="10dp"
+        android:paddingEnd="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="5dp"/>
 
     <TextView
         android:id="@+id/countLikes"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="42"
-        android:textSize="15sp"/>
+        android:textSize="15sp"
+        android:paddingTop="5dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/buttonComment"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_comment"
-        android:background="@null"
-        android:layout_marginTop="11dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="30dp" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/comment"
+        android:paddingTop="10dp"
+        android:paddingStart="10dp"
+        android:paddingBottom="10dp"
+        android:paddingEnd="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginBottom="5dp"/>
 
     <TextView
         android:id="@+id/countComments"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="42"
-        android:textSize="15sp"/>
+        android:textSize="15sp"
+        android:textColor="@color/materialGray"
+        android:paddingTop="5dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="5dp"/>
 
-    <ImageButton
+    <ImageView
         android:id="@+id/buttonRepost"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:src="@drawable/share"
-        android:background="@null"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="30dp" />
+        android:paddingTop="10dp"
+        android:paddingStart="10dp"
+        android:paddingBottom="10dp"
+        android:paddingEnd="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="200dp"
+        android:layout_marginBottom="5dp"/>
 
     <TextView
         android:id="@+id/countReposts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="42"
-        android:textSize="15sp"/>
+        android:textSize="15sp"
+        android:textColor="@color/materialGray"
+        android:paddingTop="5dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="5dp"/>
 
 </merge>
