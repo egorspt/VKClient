@@ -17,16 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.ui.views.activities.ImageActivity
-import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity
-import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWNER_NAME
-import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWNER_PHOTO
 import com.app.tinkoff_fintech.database.Post
-import com.app.tinkoff_fintech.detail.DetailActivity
 import com.app.tinkoff_fintech.paging.wall.ProfileAdapter
 import com.app.tinkoff_fintech.paging.wall.WallListViewModel
 import com.app.tinkoff_fintech.ui.contracts.ProfileContractInterface
 import com.app.tinkoff_fintech.ui.presenters.ProfilePresenter
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity
+import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity
+import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWNER_NAME
+import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWNER_PHOTO
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.PICK_PHOTO
 import com.app.tinkoff_fintech.utils.State
 import com.app.tinkoff_fintech.vk.ProfileInformation
@@ -44,6 +43,7 @@ class ProfileFragment : Fragment(),
 
     @Inject
     lateinit var presenter: ProfilePresenter
+
     @Inject
     lateinit var profileAdapter: ProfileAdapter
 
@@ -69,31 +69,48 @@ class ProfileFragment : Fragment(),
     }
 
     override fun init() {
+        if (!viewModel.isInitialized()) {
+            (activity?.application as App).profileComponent?.inject(viewModel)
+            viewModel.init()
+        }
         initState()
         initAdapter()
         presenter.getProfileInformation()
     }
 
-    private fun clickImage(url: String) {
-        requireActivity().startActivity(Intent(activity, ImageActivity::class.java).apply {
-            putExtra(DetailActivity.ARG_URL_IMAGE, url)
-        })
-    }
-
     private fun initAdapter() {
         val dividerItemDecoration = DividerItemDecoration(activity, RecyclerView.VERTICAL)
-        dividerItemDecoration.setDrawable(ResourcesCompat.getDrawable(resources, R.drawable.divider_post_space,null)!!)
-        recyclerView.addItemDecoration(dividerItemDecoration)
+        dividerItemDecoration.setDrawable(
+            ResourcesCompat.getDrawable(
+                resources,
+                R.drawable.divider_post_space,
+                null
+            )!!
+        )
 
-        profileAdapter.clickImage = { url -> clickImage(url) }
-        profileAdapter.retry = { viewModel.retry() }
-        profileAdapter.newPostClickListener = { ownerPhoto, ownerName, pickPhoto -> startNewPostActivity(ownerPhoto, ownerName, pickPhoto) }
-        recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        recyclerView.adapter = profileAdapter
+        with(profileAdapter) {
+            postClickListener = { id -> startDetailActivity(id) }
+            retry = { viewModel.retry() }
+            newPostClickListener = { ownerPhoto, ownerName, pickPhoto ->
+                startNewPostActivity(
+                    ownerPhoto,
+                    ownerName,
+                    pickPhoto
+                )
+            }
+            changeLikes =
+                { postId, postOwnerId, isLikes -> changeLike(postId, postOwnerId, isLikes) }
+        }
+        with(recyclerView) {
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            adapter = profileAdapter
+            addItemDecoration(dividerItemDecoration)
+        }
         viewModel.newsList.observe(requireActivity(), Observer<PagedList<Post>> {
             profileAdapter.submitList(it)
         })
     }
+
 
     private fun initState() {
         textError.setOnClickListener { viewModel.retry() }
@@ -127,8 +144,18 @@ class ProfileFragment : Fragment(),
         }, 42)
     }
 
+    private fun startDetailActivity(id: Int) {
+        requireActivity().startActivity(Intent(activity, DetailActivity::class.java).apply {
+            putExtra(DetailActivity.ARG_POST_ID, id)
+        })
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK)
             viewModel.invalidate()
+    }
+
+    private fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
+        //presenter.changeLikes(postId, postOwnerId, isLikes)
     }
 }

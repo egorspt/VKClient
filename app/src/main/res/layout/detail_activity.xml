@@ -1,74 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="1dp"
-        android:background="#FFFFFF"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:layout_alignParentTop="true"/>
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:layout_centerInParent="true"/>
-
-    <TextView
-        android:id="@+id/textError"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/error_tap_to_retry"
-        android:visibility="gone"
-        android:layout_centerInParent="true"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
         android:layout_above="@id/createCommentLL"
-        tools:listitem="@layout/view_holder_comment" />
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="#FFFFFF"
+                android:elevation="1dp"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/textError"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="@string/error_tap_to_retry"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/toolbar"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:listitem="@layout/view_holder_comment" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <RelativeLayout
         android:id="@+id/createCommentLL"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:elevation="4dp"
-        android:background="@android:color/background_light">
+        android:background="@android:color/background_light"
+        android:elevation="4dp">
 
         <EditText
             android:id="@+id/editComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/editCommentHint"
-            android:textColorHint="@color/materialGray"
-            android:textColor="@color/materialBlack"
-            android:layout_toStartOf="@+id/buttonSend"
             android:layout_centerVertical="true"
-            android:background="@null"
             android:layout_marginStart="15dp"
-            android:inputType="textCapSentences" />
+            android:layout_toStartOf="@+id/buttonSend"
+            android:background="@null"
+            android:hint="@string/editCommentHint"
+            android:inputType="textCapSentences"
+            android:textColor="@color/materialBlack"
+            android:textColorHint="@color/materialGray" />
 
         <ImageView
             android:id="@+id/buttonSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_send_enable"
-            android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:padding="15dp" />
+            android:layout_centerVertical="true"
+            android:padding="15dp"
+            android:src="@drawable/ic_send_enable" />
 
     </RelativeLayout>
 </RelativeLayout>

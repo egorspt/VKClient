@@ -11,26 +11,31 @@ import com.app.tinkoff_fintech.database.Post
 import com.app.tinkoff_fintech.holders.FooterViewHolder
 import com.app.tinkoff_fintech.holders.InformationViewHolder
 import com.app.tinkoff_fintech.holders.NewPostViewHolder
-import com.app.tinkoff_fintech.holders.PostViewHolder
+import com.app.tinkoff_fintech.holders.NewsPostViewHolder
+import com.app.tinkoff_fintech.recyclerView.PostDifferCallback
 import com.app.tinkoff_fintech.utils.State
 import com.app.tinkoff_fintech.vk.ProfileInformation
 import javax.inject.Inject
 
+typealias changeLikes = (postId: Int, postOwnerId: Int, isLikes: Boolean) -> Unit
 typealias newPostClickListener = (ownerPhoto: String, ownerName: String, pickPhoto: Boolean) -> Unit
-typealias clickImage = (url: String) -> Unit
+typealias postClickListener = (id: Int) -> Unit
 typealias retry = () -> Unit
 
-class ProfileAdapter @Inject constructor() : PagedListAdapter<Post, RecyclerView.ViewHolder>(WallDiffCallback()) {
+class ProfileAdapter @Inject constructor(
+    differ: PostDifferCallback
+) : PagedListAdapter<Post, RecyclerView.ViewHolder>(differ) {
 
     var profileInformation: ProfileInformation? = null
     lateinit var newPostClickListener: newPostClickListener
-    lateinit var clickImage: clickImage
+    lateinit var postClickListener: postClickListener
     lateinit var retry: retry
+    lateinit var changeLikes: changeLikes
     private val adapterCallback = AdapterListUpdateCallback(this)
     private val listUpdateCallback = WallListUpdateCallback(adapterCallback)
     private var differ = AsyncPagedListDiffer<Post>(
         listUpdateCallback,
-        AsyncDifferConfig.Builder<Post>(WallDiffCallback()).build()
+        AsyncDifferConfig.Builder<Post>(differ).build()
     )
 
     companion object {
@@ -46,7 +51,7 @@ class ProfileAdapter @Inject constructor() : PagedListAdapter<Post, RecyclerView
         return when (viewType) {
             TYPE_INFORMATION -> InformationViewHolder.create(parent)
             TYPE_NEW_NOTE -> NewPostViewHolder.create(parent, newPostClickListener)
-            TYPE_WALL -> PostViewHolder.create(parent)
+            TYPE_WALL -> NewsPostViewHolder.create(parent, postClickListener, changeLikes)
             else -> FooterViewHolder.create(retry, parent)
         }
     }
@@ -55,7 +60,7 @@ class ProfileAdapter @Inject constructor() : PagedListAdapter<Post, RecyclerView
         when (getItemViewType(position)) {
             TYPE_INFORMATION -> (holder as InformationViewHolder).bind(profileInformation)
             TYPE_NEW_NOTE -> (holder as NewPostViewHolder).bind(profileInformation)
-            TYPE_WALL -> (holder as PostViewHolder).bind(getItem(position), clickImage)
+            TYPE_WALL -> (holder as NewsPostViewHolder).bind(getItem(position))
             else -> (holder as FooterViewHolder).bind(state)
         }
     }

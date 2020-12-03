@@ -15,7 +15,7 @@ class CommentListViewModel(
     private val postId: Int
 ) : ViewModel() {
     private val networkService = NetworkService
-    var newsList: LiveData<PagedList<CommentModel>>
+    var comments: LiveData<PagedList<CommentModel>>
     private val compositeDisposable = CompositeDisposable()
     private val pageSize = 10
     private val commentsDataSourceFactory: CommentDataSourceFactory
@@ -26,7 +26,7 @@ class CommentListViewModel(
             .setPageSize(pageSize)
             .setEnablePlaceholders(false)
             .build()
-        newsList = LivePagedListBuilder<Int, CommentModel>(commentsDataSourceFactory, config).build()
+        comments = LivePagedListBuilder<Int, CommentModel>(commentsDataSourceFactory, config).build()
     }
 
     fun getState(): LiveData<State> = Transformations.switchMap<CommentDataSource,
@@ -37,7 +37,7 @@ class CommentListViewModel(
     }
 
     fun listIsEmpty(): Boolean {
-        return newsList.value?.isEmpty() ?: true
+        return comments.value?.isEmpty() ?: true
     }
 
     override fun onCleared() {

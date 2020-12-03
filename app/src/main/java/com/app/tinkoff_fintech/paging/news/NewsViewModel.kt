@@ -1,8 +1,6 @@
-package com.app.tinkoff_fintech.paging.wall
+package com.app.tinkoff_fintech.paging.news
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.app.tinkoff_fintech.database.Post
@@ -10,12 +8,12 @@ import com.app.tinkoff_fintech.utils.State
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-class WallListViewModel : ViewModel() {
+class NewsViewModel : ViewModel() {
 
     companion object { private const val pageSize = 10 }
 
     @Inject
-    lateinit var wallDataSourceFactory: WallDataSourceFactory
+    lateinit var newsDataSourceFactory: NewsDataSourceFactory
 
     @Inject
     lateinit var compositeDisposable: CompositeDisposable
@@ -24,7 +22,7 @@ class WallListViewModel : ViewModel() {
 
 
     fun isInitialized(): Boolean {
-        return this::wallDataSourceFactory.isInitialized && this::compositeDisposable.isInitialized
+        return this::newsDataSourceFactory.isInitialized && this::compositeDisposable.isInitialized
     }
 
     fun init() {
@@ -32,14 +30,14 @@ class WallListViewModel : ViewModel() {
             .setPageSize(pageSize)
             .setEnablePlaceholders(false)
             .build()
-        newsList = LivePagedListBuilder<Int, Post>(wallDataSourceFactory, config).build()
+        newsList = LivePagedListBuilder<Int, Post>(newsDataSourceFactory, config).build()
     }
 
-    fun getState(): LiveData<State> = Transformations.switchMap<WallDataSource,
-            State>(wallDataSourceFactory.wallDataSourceLiveData, WallDataSource::state)
+    fun getState(): LiveData<State> = Transformations.switchMap<NewsDataSource,
+            State>(newsDataSourceFactory.newsDataSourceLiveData, NewsDataSource::state)
 
     fun retry() {
-        wallDataSourceFactory.wallDataSourceLiveData.value?.retry()
+        newsDataSourceFactory.newsDataSourceLiveData.value?.retry()
     }
 
     fun listIsEmpty(): Boolean {
@@ -52,6 +50,6 @@ class WallListViewModel : ViewModel() {
     }
 
     fun invalidate() {
-        wallDataSourceFactory.invalidate()
+        newsDataSourceFactory.invalidate()
     }
 }

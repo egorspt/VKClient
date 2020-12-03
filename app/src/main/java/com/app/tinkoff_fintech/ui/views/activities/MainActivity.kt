@@ -4,29 +4,28 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.util.Pair
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
 import com.app.tinkoff_fintech.database.Post
-import com.app.tinkoff_fintech.detail.DetailActivity
-import com.app.tinkoff_fintech.detail.DetailActivity.Companion.ARG_URL_IMAGE
-import com.app.tinkoff_fintech.mainActivity.FragmentInteractor
 import com.app.tinkoff_fintech.mainActivity.ViewPagerAdapter
+import com.app.tinkoff_fintech.network.NetworkService
+import com.app.tinkoff_fintech.states.TokenState
+import com.app.tinkoff_fintech.ui.contracts.MainContractInterface
+import com.app.tinkoff_fintech.ui.presenters.MainPresenter
 import com.app.tinkoff_fintech.ui.views.fragments.AllPostsFragment
 import com.app.tinkoff_fintech.ui.views.fragments.FavoritePostsFragment
-import com.app.tinkoff_fintech.network.NetworkService
 import com.app.tinkoff_fintech.ui.views.fragments.ProfileFragment
-import com.app.tinkoff_fintech.states.TokenState
 import com.app.tinkoff_fintech.utils.AccessToken
 import com.app.tinkoff_fintech.utils.PreferencesService
+import com.app.tinkoff_fintech.utils.State
 import com.app.tinkoff_fintech.viewmodels.SharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 import com.vk.api.sdk.VK
@@ -36,11 +35,11 @@ import com.vk.api.sdk.auth.VKScope
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_profile.*
 import java.util.*
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(),
-    FragmentInteractor {
+class MainActivity : AppCompatActivity(), MainContractInterface.View {
 
     companion object {
         const val VK_ACCESS_TOKEN = "vkAccessToken"
@@ -51,24 +50,27 @@ class MainActivity : AppCompatActivity(),
     }
 
     @Inject
+    lateinit var presenter: MainPresenter
+    @Inject
     lateinit var connectivityManager: com.app.tinkoff_fintech.utils.ConnectivityManager
+    @Inject
+    lateinit var preferencesService: PreferencesService
 
     private val model: SharedViewModel by viewModels()
-    private val tabs = mutableListOf(
-        TAB1,
-        TAB2,
-        TAB3
-    )
+    private val tabs = mutableListOf(TAB1, TAB2, TAB3)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as App).appComponent.inject(this)
         setTheme(R.style.AppTheme_NoActionBar)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        checkAccessToken()
+        presenter.attachView(this)
+    }
 
-        connectivityManager.listOfAvailableListener.add{ connectivityOnAvailableListener() }
-        connectivityManager.listOfLostListener.add{ connectivityOnLostListener() }
+    override fun init() {
+        checkAccessToken()
+        connectivityManager.listOfAvailableListener.add { connectivityOnAvailableListener() }
+        connectivityManager.listOfLostListener.add { connectivityOnLostListener() }
     }
 
     private val viewPagerListener = object : ViewPager2.OnPageChangeCallback() {
@@ -79,62 +81,20 @@ class MainActivity : AppCompatActivity(),
 
     private fun onChangeFavorites(isFavorites: Boolean) {
         navView.menu.getItem(1).isVisible = isFavorites
-        if (isFavorites) {
-            if (tabLayout.tabCount == 1)
-                tabLayout.addTab(tabLayout.newTab().apply { text = getString(R.string.nameTab2) })
-        } else if (tabLayout.getTabAt(1)?.text == TAB2)
-            tabLayout.removeTabAt(1)
+        val tabFavorites = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(1)
+        if (isFavorites)
+            tabFavorites.visibility = VISIBLE
+        else {
+            tabFavorites.visibility = GONE
+            tabLayout.getTabAt(0)?.select()
+        }
     }
 
-    override fun onOpenDetail(sharedTextView: TextView, sharedImageView: ImageView?, post: Post) {
-        val arrayPairs = if (sharedImageView == null)
-            arrayOf(Pair.create(sharedTextView as View, getString(R.string.transitionNameText)))
-        else arrayOf(
-            Pair.create(sharedImageView as View, getString(R.string.transitionNameImage)),
-            Pair.create(sharedTextView as View, getString(R.string.transitionNameText))
-        )
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, *arrayPairs)
-        startActivity(Intent(this, DetailActivity::class.java).apply {
-            putExtra(ARG_URL_IMAGE, post.id)
-        }, options.toBundle())
-    }
-
-    override fun changeLikes(itemId: Int, ownerId: Int, isLikes: Int) {
-        val vkService = NetworkService.create()
-
-        if (isLikes == 1)
-            vkService.addLike(itemId, ownerId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-        else
-            vkService.deleteLike(itemId, ownerId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-    }
-
-    @SuppressLint("CheckResult")
     private fun checkAccessToken() {
-        AccessToken.accessToken = PreferencesService(
-            this
-        ).getString(VK_ACCESS_TOKEN)
-        NetworkService.createForSecure()
-            .serviceKey()
-            .subscribeOn(Schedulers.io())
-            .flatMap {
-                NetworkService.createWithoutInterceptor()
-                    .checkToken(AccessToken.accessToken, it.access_token)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .map<TokenState> { result -> TokenState.Success(result) }
-                    .onErrorReturn { e -> TokenState.Error(e) }
-            }
-            .onErrorReturn { e -> TokenState.Error(e) }
-            .subscribe(::renderToken)
+        presenter.checkAccessToken()
     }
 
-    private fun renderToken(state: TokenState) {
+    override fun renderToken(state: TokenState) {
         when (state) {
             is TokenState.Success -> {
                 if (state.response.error != null) {
@@ -145,7 +105,9 @@ class MainActivity : AppCompatActivity(),
                     vkLogin()
                 else initApp()
             }
-            is TokenState.Error -> { showError(state.error.message) }
+            is TokenState.Error -> {
+                showError(state.error.message)
+            }
         }
     }
 
@@ -161,9 +123,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initApp() {
-        AccessToken.accessToken = PreferencesService(
-            this
-        ).getString(VK_ACCESS_TOKEN)
+        AccessToken.accessToken = preferencesService.getString(VK_ACCESS_TOKEN)
         val viewPagerAdapter =
             ViewPagerAdapter(
                 supportFragmentManager, lifecycle, listOf(
@@ -202,10 +162,8 @@ class MainActivity : AppCompatActivity(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-                val preferences =
-                    PreferencesService(this@MainActivity)
-                preferences.put(VK_ACCESS_TOKEN, token.accessToken)
-                preferences.put(LAST_REFRESH_TOKEN, Calendar.getInstance().time.time)
+                preferencesService.put(VK_ACCESS_TOKEN, token.accessToken)
+                preferencesService.put(LAST_REFRESH_TOKEN, Calendar.getInstance().time.time)
                 initApp()
             }
 
@@ -213,13 +171,10 @@ class MainActivity : AppCompatActivity(),
                 vkLogin()
             }
         }
+        
         if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
             super.onActivityResult(requestCode, resultCode, data)
         }
-    }
-
-    override fun reLogin() {
-        vkLogin()
     }
 
     private fun connectivityOnLostListener() {

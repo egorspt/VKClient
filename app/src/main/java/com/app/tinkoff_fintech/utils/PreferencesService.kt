@@ -1,8 +1,9 @@
 package com.app.tinkoff_fintech.utils
 
 import android.content.Context
+import javax.inject.Inject
 
-class PreferencesService(val context: Context) {
+class PreferencesService @Inject constructor(private val context: Context) {
 
     companion object {
         const val DEFAULT_PREFERENCES_NAME = "defaultPreferencesName"
@@ -10,13 +11,9 @@ class PreferencesService(val context: Context) {
 
     private val sharedPreferences = context.getSharedPreferences(DEFAULT_PREFERENCES_NAME, Context.MODE_PRIVATE)
 
-    fun getBoolean(key: String): Boolean = sharedPreferences.getBoolean(key, true)
-
     fun getString(key: String): String = sharedPreferences.getString(key, "")!!
 
     fun getLong(key: String) = sharedPreferences.getLong(key, 0L)
-
-    fun put(key: String, value: Boolean) = sharedPreferences.edit().putBoolean(key, value).apply()
 
     fun put(key: String, value: String) = sharedPreferences.edit().putString(key, value).apply()
 

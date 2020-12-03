@@ -2,8 +2,9 @@ package com.app.tinkoff_fintech.recyclerView
 
 import androidx.recyclerview.widget.DiffUtil
 import com.app.tinkoff_fintech.database.Post
+import javax.inject.Inject
 
-class DifferCallback : DiffUtil.ItemCallback<Post>() {
+class PostDifferCallback @Inject constructor() : DiffUtil.ItemCallback<Post>() {
 
     override fun areItemsTheSame(oldPost: Post, newPost: Post) = oldPost.id == newPost.id
 

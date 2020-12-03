@@ -9,7 +9,7 @@ import javax.inject.Inject
 typealias OnLostListener = () -> Unit
 typealias OnAvailableListener = () -> Unit
 
-class ConnectivityManager @Inject constructor(private val context: Context){
+class ConnectivityManager @Inject constructor(context: Context){
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     val listOfLostListener = mutableListOf<OnLostListener>()
     val listOfAvailableListener = mutableListOf<OnAvailableListener>()

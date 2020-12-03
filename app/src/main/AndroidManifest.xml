@@ -24,7 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.app.tinkoff_fintech.detail.DetailActivity" />
+        <activity android:name="com.app.tinkoff_fintech.ui.views.activities.DetailActivity" />
         <activity android:name="com.app.tinkoff_fintech.ui.views.activities.ImageActivity" />
         <activity android:name="com.app.tinkoff_fintech.ui.views.activities.NewPostActivity" />
     </application>

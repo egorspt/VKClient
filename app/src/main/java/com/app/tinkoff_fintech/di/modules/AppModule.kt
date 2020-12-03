@@ -1,14 +1,17 @@
 package com.app.tinkoff_fintech.di.modules
 
-import android.app.AlertDialog
 import android.content.ContentResolver
 import android.content.Context
-import android.widget.ProgressBar
+import com.app.tinkoff_fintech.database.DatabaseService
+import com.app.tinkoff_fintech.database.PostDao
+import com.app.tinkoff_fintech.di.qualifers.*
+import com.app.tinkoff_fintech.di.scopes.ProfileScope
 import com.app.tinkoff_fintech.network.NetworkService
 import com.app.tinkoff_fintech.network.VkService
 import com.app.tinkoff_fintech.utils.AccessToken
 import dagger.Module
 import dagger.Provides
+import io.reactivex.disposables.CompositeDisposable
 import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
@@ -40,5 +43,27 @@ class AppModule(private val context: Context) {
     @Singleton
     @Provides
     fun provideVkService(): VkService = NetworkService.create()
+
+    @Singleton
+    @Provides
+    @VkServiceSecure
+    fun provideVkServiceSecure(): VkService = NetworkService.createForSecure()
+
+    @Singleton
+    @Provides
+    @VkServiceWithoutInterceptor
+    fun provideVkServiceWithoutInterceptor(): VkService = NetworkService.createWithoutInterceptor()
+
+    @Provides
+    @PostDatabase
+    fun providePostDatabase(): PostDao = DatabaseService(context).postDatabase().postDao()
+
+    @Provides
+    @WallDatabase
+    fun provideWallDatabase(): PostDao = DatabaseService(context).wallDatabase().postDao()
+
+    @Singleton
+    @Provides
+    fun provideCompositeDisposable(): CompositeDisposable = CompositeDisposable()
 
 }

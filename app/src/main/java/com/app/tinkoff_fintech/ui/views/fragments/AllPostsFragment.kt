@@ -7,82 +7,63 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.app.tinkoff_fintech.utils.Constants.Companion.NEED_UPDATE_NEWSFEED
-import com.app.tinkoff_fintech.mainActivity.FragmentInteractor
-import com.app.tinkoff_fintech.utils.PreferencesService
+import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.ui.views.activities.ImageActivity
-import com.app.tinkoff_fintech.viewmodels.SharedViewModel
 import com.app.tinkoff_fintech.database.Post
-import com.app.tinkoff_fintech.detail.DetailActivity
-import com.app.tinkoff_fintech.ui.views.fragments.mvp.IPostsView
-import com.app.tinkoff_fintech.ui.views.fragments.mvp.PostsPresenter
-import com.app.tinkoff_fintech.paging.news.PostViewModel
-import com.app.tinkoff_fintech.paging.news.PostsPagedListAdapter
-import com.app.tinkoff_fintech.recyclerView.*
+import com.app.tinkoff_fintech.paging.news.NewsViewModel
+import com.app.tinkoff_fintech.paging.news.PostsAdapter
+import com.app.tinkoff_fintech.recyclerView.ItemTouchHelperCallback
+import com.app.tinkoff_fintech.recyclerView.PostDecorator
+import com.app.tinkoff_fintech.recyclerView.SwipeListener
+import com.app.tinkoff_fintech.ui.contracts.NewsContractInterface
+import com.app.tinkoff_fintech.ui.presenters.NewsPresenter
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity
+import com.app.tinkoff_fintech.utils.State
+import com.app.tinkoff_fintech.viewmodels.SharedViewModel
 import kotlinx.android.synthetic.main.posts_fragment.*
-import kotlinx.android.synthetic.main.posts_fragment.view.*
+import javax.inject.Inject
 
 
-class AllPostsFragment : Fragment(), IPostsView {
+class AllPostsFragment : Fragment(), NewsContractInterface.View {
 
-    private lateinit var preferences: PreferencesService
-    private lateinit var adapterPaging: PostsPagedListAdapter
-    private lateinit var presenter: PostsPresenter
-    private val model: SharedViewModel by activityViewModels()
-    private val postViewModel: PostViewModel by activityViewModels()
-    private var fragmentInteractor: FragmentInteractor? = null
-    private var firstOnResume = true
+    @Inject
+    lateinit var presenter: NewsPresenter
+    @Inject
+    lateinit var postsAdapter: PostsAdapter
+
+    private val sharedModel: SharedViewModel by activityViewModels()
+    private val viewModel: NewsViewModel by activityViewModels()
 
     override fun onAttach(context: Context) {
+        (activity?.applicationContext as App).appComponent.inject(this)
         super.onAttach(context)
-        if (context is FragmentInteractor) {
-            fragmentInteractor = context
-            preferences =
-                PreferencesService(context)
-            preferences.put(NEED_UPDATE_NEWSFEED, true)
-            adapterPaging =
-                PostsPagedListAdapter(
-                    model,
-                    { itemId, ownerId, isLikes ->
-                        fragmentInteractor?.changeLikes(itemId, ownerId, isLikes)
-                    },
-                    { text, image, post ->
-                        fragmentInteractor?.onOpenDetail(text, image, post)
-                    }, DifferCallback()
-                )
-            adapterPaging.clickImage = { url -> clickImage(url) }
-            presenter = PostsPresenter(this)
-        }
     }
 
-    private fun clickImage(url: String) {
-        requireActivity().startActivity(Intent(activity, ImageActivity::class.java).apply {
-            putExtra(DetailActivity.ARG_URL_IMAGE, url)
+    override fun onDestroy() {
+        presenter.unsubscribe()
+        super.onDestroy()
+    }
+
+    private fun startDetailActivity(id: Int) {
+        requireActivity().startActivity(Intent(activity, DetailActivity::class.java).apply {
+            putExtra(DetailActivity.ARG_POST_ID, id)
         })
     }
 
     override fun onResume() {
         super.onResume()
-        if (firstOnResume)
-            firstOpen()
-        else
-            presenter.checkRelevanceNewsfeed(preferences)
-    }
-
-    private fun firstOpen() {
-        firstOnResume = false
-        preferences.put(NEED_UPDATE_NEWSFEED, true)
-        presenter.deleteAllFromDatabase(requireContext())
+        presenter.checkRelevanceNews()
     }
 
     override fun onCreateView(
@@ -92,52 +73,73 @@ class AllPostsFragment : Fragment(), IPostsView {
     ): View = inflater.inflate(R.layout.posts_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        initListeners()
+        presenter.attachView(this)
+    }
 
-        fab.setOnClickListener { recyclerView.scrollToPosition(0); fab.visibility = View.GONE }
+    override fun updateNews() {
+        textError.visibility = View.GONE
+        viewModel.invalidate()
+    }
+
+    override fun init() {
+        if (!viewModel.isInitialized()) {
+            (activity?.application as App).appComponent.inject(viewModel)
+            viewModel.init()
+        }
+        initState()
+        initAdapter()
+    }
+
+    private fun initAdapter() {
+        with(postsAdapter) {
+            changeLikes = { itemId, ownerId, isLikes -> changeLike(itemId, ownerId, isLikes) }
+            clickImage = { id -> startDetailActivity(id) }
+            sharedViewModel = sharedModel
+        }
+        //fab.setOnClickListener { recyclerView.scrollToPosition(0); fab.visibility = View.GONE }
         with(recyclerView) {
-            layoutManager = LinearLayoutManager(requireActivity())
-            adapter = adapterPaging
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            adapter = postsAdapter
             addItemDecoration(PostDecorator())
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            /*addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
                     if (dy >= 0) {
-                        view.fab?.visibility = View.GONE
+                        fab.visibility = View.GONE
                     } else {
-                        view.fab?.visibility = View.VISIBLE
+                        fab.visibility = View.VISIBLE
                     }
                 }
             })
+
+             */
         }
 
         val callback =
-            ItemTouchHelperCallback(adapterPaging as SwipeListener)
+            ItemTouchHelperCallback(postsAdapter as SwipeListener)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        val dividerItemDecoration = DividerItemDecoration(requireActivity(), RecyclerView.VERTICAL)
-        dividerItemDecoration.setDrawable(
-            ContextCompat.getDrawable(
-                requireActivity(),
-                R.drawable.divider_post_space
-            )!!
-        )
-
-        view.swipeContainer.setOnRefreshListener {
-            presenter.refreshNewsfeed(preferences)
+        swipeContainer.setOnRefreshListener {
+            presenter.refreshNews()
         }
+
+        viewModel.newsList.observe(requireActivity(), Observer<PagedList<Post>> { items ->
+            postsAdapter.submitList(items)
+        })
     }
 
-    private fun initListeners() {
-        postViewModel.postPagedList.observe(requireActivity(), Observer<PagedList<Post>> { items ->
-            adapterPaging.submitList(items)
-        })
-        postViewModel.errorListener.observe(requireActivity(), Observer<String> { message ->
-            showError(message)
-        })
-        postViewModel.postDatabaseList.observe(requireActivity(), Observer<List<Post>> { list ->
-            presenter.updateDatabase(requireContext(), list)
+    private fun initState() {
+        textError.setOnClickListener { viewModel.retry() }
+        viewModel.getState().observe(requireActivity(), Observer { state ->
+            progressBar.visibility =
+                if (viewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
+            textError.visibility =
+                if (viewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
+            if (!viewModel.listIsEmpty()) {
+                hideShimmer()
+                //postsAdapter.setState(state ?: State.DONE)
+            }
         })
     }
 
@@ -153,18 +155,12 @@ class AllPostsFragment : Fragment(), IPostsView {
             .setPositiveButton(getString(R.string.dialogPositiveButtonText)) { dialog, _ ->
                 dialog.cancel()
             }.show()
-        with(errorText) {
+        with(textError) {
             visibility = View.VISIBLE
             text = getString(R.string.errorText, message)
         }
         hideShimmer()
         swipeContainer.isRefreshing = false
-    }
-
-    override fun updateNewsfeed() {
-        errorText.visibility = View.GONE
-        postViewModel.invalidate()
-        presenter.deleteAllFromDatabase(requireContext())
     }
 
     override fun hideShimmer() {
@@ -175,19 +171,28 @@ class AllPostsFragment : Fragment(), IPostsView {
         }
     }
 
-    override fun showDatabaseError(message: String?) {
-        requireActivity().runOnUiThread {
-            AlertDialog.Builder(activity)
-                .setTitle(getString(R.string.dialogErrorTitle))
-                .setMessage(message)
-                .show()
-        }
+    private fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
+        presenter.changeLike(postId, postOwnerId, isLikes)
     }
 
-    override fun updateFavorites(list: List<Post>) {
-        requireActivity().runOnUiThread {
-            model.favorites.value = list
-        }
+    private fun onOpenDetail(sharedTextView: TextView, sharedImageView: ImageView?, post: Post) {
+        val arrayPairs = if (sharedImageView == null)
+            arrayOf(Pair.create(sharedTextView as View, getString(R.string.transitionNameText)))
+        else arrayOf(
+            Pair.create(sharedImageView as View, getString(R.string.transitionNameImage)),
+            Pair.create(sharedTextView as View, getString(R.string.transitionNameText))
+        )
+        val options =
+            ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *arrayPairs)
+        activity?.startActivity(Intent(activity, DetailActivity::class.java).apply {
+            putExtra(DetailActivity.ARG_POST_ID, post.id)
+        }, options.toBundle())
+    }
+
+    private fun initListeners() {
+        viewModel.newsList.observe(requireActivity(), Observer<PagedList<Post>> { items ->
+            postsAdapter.submitList(items)
+        })
     }
 }
 

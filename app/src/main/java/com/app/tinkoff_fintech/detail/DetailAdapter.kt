@@ -12,17 +12,20 @@ import com.app.tinkoff_fintech.detail.holders.CommentHeaderViewHolder
 import com.app.tinkoff_fintech.detail.holders.CommentViewHolder
 import com.app.tinkoff_fintech.detail.paging.DetailDiffCallback
 import com.app.tinkoff_fintech.detail.paging.DetailListUpdateCallback
+import com.app.tinkoff_fintech.holders.DetailPostViewHolder
 import com.app.tinkoff_fintech.holders.FooterViewHolder
-import com.app.tinkoff_fintech.holders.PostViewHolder
+import com.app.tinkoff_fintech.holders.NewsPostViewHolder
 import com.app.tinkoff_fintech.utils.State
 import javax.inject.Inject
 
+typealias changeLikes = (postId: Int, postOwnerId: Int, isLikes: Boolean) -> Unit
 typealias clickImage = (url: String) -> Unit
 typealias retry = () -> Unit
 
 class DetailAdapter @Inject constructor() : PagedListAdapter<CommentModel, RecyclerView.ViewHolder>(DetailDiffCallback()) {
 
     lateinit var post: Post
+    lateinit var changeLikes: changeLikes
     lateinit var clickImage: clickImage
     lateinit var retry: retry
     private var state = State.LOADING
@@ -43,7 +46,7 @@ class DetailAdapter @Inject constructor() : PagedListAdapter<CommentModel, Recyc
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            TYPE_POST -> PostViewHolder.create(parent)
+            TYPE_POST -> DetailPostViewHolder.create(parent, clickImage, changeLikes)
             TYPE_COMMENT_HEADER -> CommentHeaderViewHolder.create(parent)
             TYPE_COMMENT -> CommentViewHolder.create(parent)
             else -> FooterViewHolder.create(retry, parent)
@@ -52,7 +55,7 @@ class DetailAdapter @Inject constructor() : PagedListAdapter<CommentModel, Recyc
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            TYPE_POST -> (holder as PostViewHolder).bind(post, clickImage)
+            TYPE_POST -> (holder as DetailPostViewHolder).bind(post)
             TYPE_COMMENT_HEADER -> (holder as CommentHeaderViewHolder).bind(differ.itemCount)
             TYPE_COMMENT -> (holder as CommentViewHolder).bind(getItem(position))
             else -> (holder as FooterViewHolder).bind(state)

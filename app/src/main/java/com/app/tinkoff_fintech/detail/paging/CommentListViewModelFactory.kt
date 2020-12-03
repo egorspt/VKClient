@@ -3,7 +3,7 @@ package com.app.tinkoff_fintech.detail.paging
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class CommentLisViewModelFactory(
+class CommentListViewModelFactory(
     private val ownerId: Int,
     private val postId: Int
 ): ViewModelProvider.NewInstanceFactory() {

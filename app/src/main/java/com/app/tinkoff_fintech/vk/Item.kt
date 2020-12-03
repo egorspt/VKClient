@@ -12,7 +12,7 @@ data class Item(
     val photos: Photos,
     val post_id: Int,
     val post_source: PostSource,
-    val post_type: String,
+    val post_type: String?,
     val reposts: RepostsX,
     val source_id: Int,
     val text: String,

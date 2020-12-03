@@ -1,7 +1,7 @@
 package com.app.tinkoff_fintech.vk.wall
 
 data class Wall(
-    val attachments: List<Attachment>,
+    val attachments: List<Attachment>?,
     val can_archive: Boolean,
     val can_delete: Int,
     val can_pin: Int,

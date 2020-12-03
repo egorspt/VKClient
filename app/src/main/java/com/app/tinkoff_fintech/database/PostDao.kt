@@ -1,9 +1,6 @@
 package com.app.tinkoff_fintech.database
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -14,19 +11,15 @@ interface PostDao {
     @Query("SELECT * FROM post")
     fun getAllW(): List<Post>
 
-    @Query("SELECT count(*) FROM post")
-    fun count(): Int
-
     @Query("SELECT * FROM post WHERE id = :id")
     fun findById(id: Int): Single<Post>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(posts: List<Post>) : Completable
 
-    @Delete
-    fun delete(post: Post)
+    @Query("delete from post WHERE id = :id")
+    fun deleteById(id: Int): Completable
 
     @Query("DELETE FROM post")
     fun deleteAll() : Completable
-
 }

@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.drawToBitmap
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.detail.DetailActivity.Companion.ARG_URL_IMAGE
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity.Companion.ARG_POST_ID
 import com.app.tinkoff_fintech.ui.presenters.ImagePresenter
 import kotlinx.android.synthetic.main.image_activity.*
 import javax.inject.Inject
@@ -33,7 +33,7 @@ class ImageActivity : AppCompatActivity() {
         setContentView(R.layout.image_activity)
         window.statusBarColor = ContextCompat.getColor(this, R.color.materialBlack)
 
-        val url = intent.getStringExtra(ARG_URL_IMAGE)
+        val url = intent.getStringExtra(ARG_POST_ID)
 
         presenter.load(this, url, imageView)
 

@@ -3,21 +3,17 @@ package com.app.tinkoff_fintech.paging.wall
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import com.app.tinkoff_fintech.database.Post
-import com.app.tinkoff_fintech.network.NetworkService
-import io.reactivex.disposables.CompositeDisposable
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class WallDataSourceFactory(
-    private val compositeDisposable: CompositeDisposable,
-    private val networkService: NetworkService
-)
-    : DataSource.Factory<Int, Post>() {
+class WallDataSourceFactory @Inject constructor(
+    private val wallDataSource: WallDataSource
+) : DataSource.Factory<Int, Post>() {
 
-    lateinit var wallDataSource: WallDataSource
-    val newsDataSourceLiveData = MutableLiveData<WallDataSource>()
+    val wallDataSourceLiveData = MutableLiveData<WallDataSource>()
 
     override fun create(): DataSource<Int, Post> {
-        wallDataSource = WallDataSource(networkService, compositeDisposable)
-        newsDataSourceLiveData.postValue(wallDataSource)
+        wallDataSourceLiveData.postValue(wallDataSource)
         return wallDataSource
     }
 

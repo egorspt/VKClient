@@ -44,17 +44,23 @@ interface VkService {
         @Query("offset") offset: Int
     ): Single<ResponseComments>
 
-    @POST("likes.add?v=5.124&type=post")
+    @GET("likes.add?v=5.124&type=post")
     fun addLike(
         @Query("item_id") itemId: Int,
         @Query("owner_id") ownerId: Int
     ): Single<ResponseLikes>
 
-    @POST("likes.delete?v=5.124&type=post")
+    @GET("likes.delete?v=5.124&type=post")
     fun deleteLike(
         @Query("item_id") itemId: Int,
         @Query("owner_id") ownerId: Int
     ): Single<ResponseLikes>
+
+    @GET("newsfeed.ignoreItem?v=5.124&type=wall")
+    fun ignoreItem(
+        @Query("item_id") itemId: Int,
+        @Query("owner_id") ownerId: Int
+    ): Single<ResponseIgnoreItem>
 
     @GET("wall.getById?v=5.124&extended=1")
     fun getPostById(
