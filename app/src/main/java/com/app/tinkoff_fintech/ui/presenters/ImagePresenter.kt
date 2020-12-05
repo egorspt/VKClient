@@ -2,34 +2,41 @@ package com.app.tinkoff_fintech.ui.presenters
 
 import android.graphics.Bitmap
 import android.widget.ImageView
+import com.app.tinkoff_fintech.ui.contracts.DetailContractInterface
+import com.app.tinkoff_fintech.ui.contracts.ImageContractInterface
 import com.app.tinkoff_fintech.ui.views.activities.ImageActivity
 import com.app.tinkoff_fintech.utils.ImageLoad
 import com.app.tinkoff_fintech.utils.ImageSaveToGallery
 import com.app.tinkoff_fintech.utils.ImageShare
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class ImagePresenter @Inject constructor(
     private val imageLoad: ImageLoad,
     private val imageShare: ImageShare,
     private val imageSaveToGallery: ImageSaveToGallery
-) {
-    fun load(
-        imageActivity: ImageActivity,
-        url: String?,
-        imageView: ImageView
-    ) {
+) : BasePresenter<ImageContractInterface.View>(), ImageContractInterface.Presenter {
+
+    companion object {
+        private const val saveImageSuccess = "Фото сохранено"
+        private const val saveImageNotSuccess = "Фото не сохранено"
+    }
+
+    override fun load(imageActivity: ImageActivity, url: String?, imageView: ImageView) {
         imageLoad.glideLoad(imageActivity, url, imageView)
     }
 
-    fun shareImage(bitmap: Bitmap) {
+    override fun shareImage(bitmap: Bitmap) {
         imageShare.execute(bitmap)
     }
 
-    fun saveImage(bitmap: Bitmap) {
+    override fun saveImage(bitmap: Bitmap) {
+        view.showProgress()
         if (imageSaveToGallery.execute(bitmap)) {
-            //Toast.makeText(this@ImageActivity, "Фото сохранено", Toast.LENGTH_LONG).show()
+            view.showToast(saveImageSuccess)
         } else {
-            //Toast.makeText(this@ImageActivity, "Фото не сохранено", Toast.LENGTH_LONG).show()
+            view.showToast(saveImageNotSuccess)
         }
+        view.hideProgress()
     }
 }

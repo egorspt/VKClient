@@ -52,6 +52,8 @@
     <string name="dateFormatToday">Сегодня в %1$s</string>
     <string name="dateFormatYesterday">Вчера в %1$s</string>
     <string name="dateFormatLong">Был в сети %1$s</string>
+    <string name="errorLoad">Ошибка загрузки</string>
+    <string name="buttonRetry">Повторить</string>
     <string name="error_tap_to_retry">Ошибка! Нажмите, чтобы повторить</string>
     <string name="new_note_text">Что у Вас нового?</string>
 

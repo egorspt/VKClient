@@ -12,12 +12,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.drawToBitmap
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
+import com.app.tinkoff_fintech.ui.contracts.ImageContractInterface
 import com.app.tinkoff_fintech.ui.views.activities.DetailActivity.Companion.ARG_POST_ID
 import com.app.tinkoff_fintech.ui.presenters.ImagePresenter
+import com.google.android.material.transition.platform.MaterialFade
 import kotlinx.android.synthetic.main.image_activity.*
 import javax.inject.Inject
 
-class ImageActivity : AppCompatActivity() {
+class ImageActivity : AppCompatActivity(), ImageContractInterface.View {
 
     companion object {
         private const val REQUEST_STORAGE_PERMISSION = 42
@@ -28,18 +30,43 @@ class ImageActivity : AppCompatActivity() {
     lateinit var alertDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.enterTransition = MaterialFade().apply {
+            addTarget(R.id.containerImage)
+            duration = 600L
+        }
+        window.returnTransition = MaterialFade().apply {
+            addTarget(R.id.containerImage)
+            duration = 400L
+        }
+        window.allowEnterTransitionOverlap = true
+
         (application as App).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.image_activity)
+        presenter.attachView(this)
+    }
+
+    override fun init() {
         window.statusBarColor = ContextCompat.getColor(this, R.color.materialBlack)
 
         val url = intent.getStringExtra(ARG_POST_ID)
-
         presenter.load(this, url, imageView)
 
         share.setOnClickListener { shareImage() }
         download.setOnClickListener { checkForPermission() }
         createAlertDialog()
+    }
+
+    override fun showProgress() {
+        alertDialog.show()
+    }
+
+    override fun hideProgress() {
+        alertDialog.hide()
+    }
+
+    override fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun createAlertDialog() {
@@ -56,18 +83,6 @@ class ImageActivity : AppCompatActivity() {
 
     private fun saveImage() {
         presenter.saveImage(imageView.drawToBitmap())
-    }
-
-    fun showProgress() {
-        alertDialog.show()
-    }
-
-    fun hideProgress() {
-        alertDialog.hide()
-    }
-
-    fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun checkForPermission() {

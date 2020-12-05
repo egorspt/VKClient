@@ -113,6 +113,7 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
     }
 
     override fun showError(title: String, message: String) {
+        hideProgress()
         AlertDialog.Builder(this)
             .setTitle(title)
             .setMessage(message)

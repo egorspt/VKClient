@@ -79,6 +79,7 @@ class NewsDataSource @Inject constructor(
                             connectivityManager.notifyConnection()
                             if (it.isEmpty()) {
                                 updateState(State.ERROR)
+                                callbackError()
                                 return@subscribeBy
                             }
                         }

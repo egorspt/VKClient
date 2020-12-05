@@ -10,6 +10,7 @@ import com.app.tinkoff_fintech.network.NetworkService
 import com.app.tinkoff_fintech.network.VkRepository
 import com.app.tinkoff_fintech.network.VkService
 import com.app.tinkoff_fintech.states.NewPostState
+import com.app.tinkoff_fintech.ui.contracts.ImageContractInterface
 import com.app.tinkoff_fintech.ui.contracts.NewPostContractInterface
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,19 +27,7 @@ import javax.inject.Named
 
 class NewPostPresenter @Inject constructor(
     private val vkRepository: VkRepository
-) : NewPostContractInterface.Presenter {
-
-    private val subscriptions = CompositeDisposable()
-    lateinit var view: NewPostContractInterface.View
-
-    override fun attachView(view: NewPostContractInterface.View) {
-        this.view = view
-        view.init()
-    }
-
-    override fun unsubscribe() {
-        subscriptions.clear()
-    }
+) : BasePresenter<NewPostContractInterface.View>(), NewPostContractInterface.Presenter {
 
     override fun uploadFileToServer(file: File) {
         view.showProgress()

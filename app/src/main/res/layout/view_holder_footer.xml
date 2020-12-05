@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="12dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
     android:background="@color/materialWhite" >
 
     <ProgressBar
@@ -18,8 +19,21 @@
         android:id="@+id/textError"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/error_tap_to_retry"
-        android:textColor="@color/materialBlack"/>
+        android:layout_gravity="center_vertical|start"
+        android:text="@string/errorLoad"
+        android:textColor="@color/materialGray"
+        android:layout_marginStart="15dp"
+        android:textSize="15sp"/>
+
+    <TextView
+        android:id="@+id/buttonError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:text="@string/buttonRetry"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:padding="15dp"/>
 
 </FrameLayout>

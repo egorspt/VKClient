@@ -2,7 +2,7 @@ package com.app.tinkoff_fintech.ui.contracts
 
 interface BaseContract {
 
-    interface Presenter<in T> {
+    interface Presenter<T: View> {
         fun attachView(view: T)
         fun unsubscribe()
     }

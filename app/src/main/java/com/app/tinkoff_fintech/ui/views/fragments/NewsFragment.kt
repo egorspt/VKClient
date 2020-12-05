@@ -127,7 +127,10 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
     }
 
     private fun initState() {
-        textError.setOnClickListener { viewModel.retry() }
+        textError.setOnClickListener {
+            progressBar.visibility = View.VISIBLE
+            viewModel.retry()
+        }
         viewModel.getState().observe(requireActivity(), Observer { state ->
             progressBar.visibility =
                 if (viewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE

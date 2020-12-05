@@ -19,7 +19,7 @@ class CommentDataSource(
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<CommentModel>) {
         loadData(params.startPosition,
             { callback.onResult(it) },
-            { setRetry(Action { loadRange(params, callback) }) })
+            { setRetry( Action { loadRange(params, callback) }) })
     }
 
     override fun loadInitial(
@@ -28,7 +28,7 @@ class CommentDataSource(
     ) {
         loadData(0,
             { callback.onResult(it, 0) },
-            { setRetry(Action { loadInitial(params, callback) }) })
+            { setRetry( Action { loadInitial(params, callback) }) })
     }
 
     private fun loadData(

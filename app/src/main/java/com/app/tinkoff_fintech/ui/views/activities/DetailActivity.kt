@@ -1,6 +1,7 @@
 package com.app.tinkoff_fintech.ui.views.activities
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
@@ -135,16 +136,11 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
     }
 
     private fun startImageActivity(url: String) {
-        /*val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            this,
-            postLayout.contentImage,
-            ViewCompat.getTransitionName(postLayout.contentImage)!!
-        )
-
-         */
-        startActivity(Intent(this, ImageActivity::class.java).apply {
+        val intent = Intent(this, ImageActivity::class.java).apply {
             putExtra(ARG_POST_ID, url)
-        })
+        }
+        val bundle = ActivityOptions.makeSceneTransitionAnimation(this).toBundle()
+        startActivity(intent, bundle)
     }
 
     private fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
