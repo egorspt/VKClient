@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.paging.PagedList
 import androidx.paging.PositionalDataSource
-import com.app.tinkoff_fintech.detail.CommentModel
+import com.app.tinkoff_fintech.models.CommentModel
 import java.util.concurrent.Executor
 
 class ConvertListToPagedList {

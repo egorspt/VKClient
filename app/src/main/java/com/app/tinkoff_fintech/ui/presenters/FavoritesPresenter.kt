@@ -1,19 +1,21 @@
 package com.app.tinkoff_fintech.ui.presenters
 
+import androidx.lifecycle.LiveData
+import com.app.tinkoff_fintech.models.Post
+import com.app.tinkoff_fintech.database.PostDao
+import com.app.tinkoff_fintech.di.qualifers.PostDatabase
 import com.app.tinkoff_fintech.network.VkRepository
 import com.app.tinkoff_fintech.ui.contracts.FavoritesContractInterface
-import com.app.tinkoff_fintech.ui.contracts.NewPostContractInterface
-import com.app.tinkoff_fintech.ui.contracts.ProfileContractInterface
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.plusAssign
-import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
 class FavoritesPresenter @Inject constructor(
+    @PostDatabase
+    private val database: PostDao,
     private val vkRepository: VkRepository
-)
-    : FavoritesContractInterface.Presenter {
+) : FavoritesContractInterface.Presenter {
 
+    private val favorites: LiveData<List<Post>> = database.getFavorites()
     private val subscriptions = CompositeDisposable()
     lateinit var view: FavoritesContractInterface.View
 
@@ -34,4 +36,6 @@ class FavoritesPresenter @Inject constructor(
             vkRepository.deleteLike(postId, postOwnerId)
                 .subscribe()
     }
+
+    override fun getFavorites() = favorites
 }

@@ -29,15 +29,8 @@ class DetailPresenter @Inject constructor(
         if (text.isEmpty()) return
         vkRepository
             .createComment(postId, postOwnerId, text)
-            .subscribeBy(
-                onError = {
-                    view.errorCreateComment()
-                },
-                onSuccess = {
-                    if (it.response == null)
-                        view.errorCreateComment()
-                    else view.successCreateComment()
-                })
+            .subscribe()
+        view.updateComments()
     }
 
     override fun changeLikes(postId: Int, postOwnerId: Int, isLikes: Boolean) {

@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/dividerText"
     android:layout_width="match_parent"
-    android:layout_height="25dp"
-    android:gravity="center"
-    android:background="@drawable/divider_post_text"
-    android:textColor="@color/materialBlack"
-    tools:text="Сегодня" />
+    android:layout_height="35dp"
+    android:background="@drawable/divider_post_frame" >
+
+    <TextView
+        android:id="@+id/dividerText"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:background="@drawable/divider_post_text"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:backgroundTint="#20212121"/>
+
+</FrameLayout>

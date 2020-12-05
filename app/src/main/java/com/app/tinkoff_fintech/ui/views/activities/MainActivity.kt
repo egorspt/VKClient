@@ -1,41 +1,35 @@
 package com.app.tinkoff_fintech.ui.views.activities
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
+import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.database.Post
-import com.app.tinkoff_fintech.mainActivity.ViewPagerAdapter
-import com.app.tinkoff_fintech.network.NetworkService
+import com.app.tinkoff_fintech.models.Post
+import com.app.tinkoff_fintech.recycler.adapters.ViewPagerAdapter
 import com.app.tinkoff_fintech.states.TokenState
 import com.app.tinkoff_fintech.ui.contracts.MainContractInterface
 import com.app.tinkoff_fintech.ui.presenters.MainPresenter
-import com.app.tinkoff_fintech.ui.views.fragments.AllPostsFragment
-import com.app.tinkoff_fintech.ui.views.fragments.FavoritePostsFragment
+import com.app.tinkoff_fintech.ui.views.fragments.FavoritesFragment
+import com.app.tinkoff_fintech.ui.views.fragments.NewsFragment
 import com.app.tinkoff_fintech.ui.views.fragments.ProfileFragment
 import com.app.tinkoff_fintech.utils.AccessToken
 import com.app.tinkoff_fintech.utils.PreferencesService
-import com.app.tinkoff_fintech.utils.State
-import com.app.tinkoff_fintech.viewmodels.SharedViewModel
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
+import com.google.android.material.transition.platform.MaterialFade
+import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKScope
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_profile.*
 import java.util.*
 import javax.inject.Inject
 
@@ -51,12 +45,10 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
 
     @Inject
     lateinit var presenter: MainPresenter
-    @Inject
-    lateinit var connectivityManager: com.app.tinkoff_fintech.utils.ConnectivityManager
+
     @Inject
     lateinit var preferencesService: PreferencesService
 
-    private val model: SharedViewModel by viewModels()
     private val tabs = mutableListOf(TAB1, TAB2, TAB3)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,8 +61,6 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
 
     override fun init() {
         checkAccessToken()
-        connectivityManager.listOfAvailableListener.add { connectivityOnAvailableListener() }
-        connectivityManager.listOfLostListener.add { connectivityOnLostListener() }
     }
 
     private val viewPagerListener = object : ViewPager2.OnPageChangeCallback() {
@@ -106,16 +96,9 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
                 else initApp()
             }
             is TokenState.Error -> {
-                showError(state.error.message)
+                initApp()
             }
         }
-    }
-
-
-    private fun showError(message: String?) {
-        AlertDialog.Builder(this)
-            .setMessage(getString(R.string.errorText, message))
-            .show()
     }
 
     private fun vkLogin() {
@@ -127,15 +110,17 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
         val viewPagerAdapter =
             ViewPagerAdapter(
                 supportFragmentManager, lifecycle, listOf(
-                    AllPostsFragment(),
-                    FavoritePostsFragment(),
+                    NewsFragment(),
+                    FavoritesFragment(),
                     ProfileFragment()
                 )
             )
+
         with(viewPager) {
             adapter = viewPagerAdapter
             registerOnPageChangeCallback(viewPagerListener)
             isUserInputEnabled = false
+            offscreenPageLimit = 1
         }
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -151,12 +136,11 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
             return@setOnNavigationItemSelectedListener true
         }
 
-        model.favorites.observe(this, Observer<List<Post>> { posts ->
+        presenter.getFavorites().observe(this, Observer<List<Post>> { posts ->
             if (posts.isEmpty())
                 onChangeFavorites(false)
             else onChangeFavorites(true)
         })
-        onChangeFavorites(false)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -171,18 +155,10 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
                 vkLogin()
             }
         }
-        
+
         if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
             super.onActivityResult(requestCode, resultCode, data)
         }
-    }
-
-    private fun connectivityOnLostListener() {
-
-    }
-
-    private fun connectivityOnAvailableListener() {
-
     }
 }
 

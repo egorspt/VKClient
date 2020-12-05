@@ -1,13 +1,13 @@
 package com.app.tinkoff_fintech.network
 
-import com.app.tinkoff_fintech.vk.*
-import com.app.tinkoff_fintech.vk.comments.ResponseComments
-import com.app.tinkoff_fintech.vk.comments.SuccessCreateComment
-import com.app.tinkoff_fintech.vk.wall.SaveWallDocs
-import com.app.tinkoff_fintech.vk.wall.WallResponse
-import com.app.tinkoff_fintech.vk.wall.photo.ResponseUploadUrl
-import com.app.tinkoff_fintech.vk.wall.photo.SaveWallPhoto
-import com.app.tinkoff_fintech.vk.wall.photo.UploadFile
+import com.app.tinkoff_fintech.network.models.news.*
+import com.app.tinkoff_fintech.network.models.comments.ResponseComments
+import com.app.tinkoff_fintech.network.models.wall.SaveWallDocs
+import com.app.tinkoff_fintech.network.models.wall.WallResponse
+import com.app.tinkoff_fintech.network.models.wall.photo.ResponseUploadUrl
+import com.app.tinkoff_fintech.network.models.wall.photo.SaveWallPhoto
+import com.app.tinkoff_fintech.network.models.wall.photo.UploadFile
+import io.reactivex.Completable
 import io.reactivex.Single
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
@@ -48,13 +48,13 @@ interface VkService {
     fun addLike(
         @Query("item_id") itemId: Int,
         @Query("owner_id") ownerId: Int
-    ): Single<ResponseLikes>
+    ): Completable
 
     @GET("likes.delete?v=5.124&type=post")
     fun deleteLike(
         @Query("item_id") itemId: Int,
         @Query("owner_id") ownerId: Int
-    ): Single<ResponseLikes>
+    ): Completable
 
     @GET("newsfeed.ignoreItem?v=5.124&type=wall")
     fun ignoreItem(
@@ -103,7 +103,7 @@ interface VkService {
         @Query("owner_id") owner_id: Int,
         @Query("post_id") post_id: Int,
         @Query("message") message: String
-    ): Single<SuccessCreateComment>
+    ): Completable
 
     @GET("groups.getById?v=5.124")
     fun getGroupById(

@@ -1,7 +1,7 @@
 package com.app.tinkoff_fintech.ui.views.fragments
 
 import android.app.Activity.RESULT_OK
-import android.app.AlertDialog
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,19 +17,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.database.Post
-import com.app.tinkoff_fintech.paging.wall.ProfileAdapter
+import com.app.tinkoff_fintech.models.Post
+import com.app.tinkoff_fintech.recycler.adapters.ProfileAdapter
 import com.app.tinkoff_fintech.paging.wall.WallListViewModel
 import com.app.tinkoff_fintech.ui.contracts.ProfileContractInterface
 import com.app.tinkoff_fintech.ui.presenters.ProfilePresenter
 import com.app.tinkoff_fintech.ui.views.activities.DetailActivity
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity.Companion.ARG_OWNER_ID
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity.Companion.ARG_POST_ID
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity.Companion.FROM_ACTIVITY
+import com.app.tinkoff_fintech.ui.views.activities.DetailActivity.Companion.FROM_PROFILE
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWNER_NAME
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWNER_PHOTO
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.PICK_PHOTO
 import com.app.tinkoff_fintech.utils.State
-import com.app.tinkoff_fintech.vk.ProfileInformation
-import kotlinx.android.synthetic.main.fragment_profile.*
+import com.app.tinkoff_fintech.network.models.news.ProfileInformation
+import kotlinx.android.synthetic.main.fragment_profile.progressBar
+import kotlinx.android.synthetic.main.fragment_profile.recyclerView
 import javax.inject.Inject
 
 class ProfileFragment : Fragment(),
@@ -46,6 +51,8 @@ class ProfileFragment : Fragment(),
 
     @Inject
     lateinit var profileAdapter: ProfileAdapter
+
+    private var ownerId = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (activity?.applicationContext as App).addProfileComponent(this)
@@ -73,7 +80,7 @@ class ProfileFragment : Fragment(),
             (activity?.application as App).profileComponent?.inject(viewModel)
             viewModel.init()
         }
-        initState()
+        initObservers()
         initAdapter()
         presenter.getProfileInformation()
     }
@@ -90,7 +97,10 @@ class ProfileFragment : Fragment(),
 
         with(profileAdapter) {
             postClickListener = { id -> startDetailActivity(id) }
-            retry = { viewModel.retry() }
+            retry = {
+                viewModel.retry()
+                presenter.getProfileInformation()
+            }
             newPostClickListener = { ownerPhoto, ownerName, pickPhoto ->
                 startNewPostActivity(
                     ownerPhoto,
@@ -98,56 +108,55 @@ class ProfileFragment : Fragment(),
                     pickPhoto
                 )
             }
-            changeLikes =
-                { postId, postOwnerId, isLikes -> changeLike(postId, postOwnerId, isLikes) }
+            changeLikesListener = { postId, postOwnerId, isLikes -> changeLike(postId, postOwnerId, isLikes) }
         }
+
         with(recyclerView) {
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             adapter = profileAdapter
             addItemDecoration(dividerItemDecoration)
         }
+    }
+
+
+    private fun initObservers() {
+        viewModel.getState().observe(requireActivity(), Observer { state ->
+            progressBar.visibility =
+                if (viewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
+            if (!viewModel.listIsEmpty() || state == State.ERROR)
+                profileAdapter.setStateAdapter(state ?: State.DONE)
+        })
+
         viewModel.newsList.observe(requireActivity(), Observer<PagedList<Post>> {
             profileAdapter.submitList(it)
         })
     }
 
-
-    private fun initState() {
-        textError.setOnClickListener { viewModel.retry() }
-        viewModel.getState().observe(requireActivity(), Observer { state ->
-            progressBar.visibility =
-                if (viewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
-            textError.visibility =
-                if (viewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
-            if (!viewModel.listIsEmpty()) {
-                profileAdapter.setState(state ?: State.DONE)
-            }
-        })
-    }
-
-    override fun showError(error: String?) {
-        AlertDialog.Builder(activity)
-            .setMessage(error)
-            .show()
-    }
-
     override fun updateProfileInformation(profileInformation: ProfileInformation) {
+        ownerId = profileInformation.id
         profileAdapter.profileInformation = profileInformation
         profileAdapter.notifyItemChanged(0)
+        profileAdapter.notifyItemChanged(1)
     }
 
     private fun startNewPostActivity(ownerPhoto: String, ownerName: String, pickPhoto: Boolean) {
-        startActivityForResult(Intent(requireActivity(), NewPostActivity::class.java).apply {
+        val intent = Intent(requireActivity(), NewPostActivity::class.java).apply {
             putExtra(OWNER_PHOTO, ownerPhoto)
             putExtra(OWNER_NAME, ownerName)
             putExtra(PICK_PHOTO, pickPhoto)
-        }, 42)
+        }
+        val bundle = ActivityOptions.makeSceneTransitionAnimation(activity).toBundle()
+        startActivityForResult(intent, 42, bundle)
     }
 
-    private fun startDetailActivity(id: Int) {
-        requireActivity().startActivity(Intent(activity, DetailActivity::class.java).apply {
-            putExtra(DetailActivity.ARG_POST_ID, id)
-        })
+    private fun startDetailActivity(postId: Int) {
+        val intent = Intent(activity, DetailActivity::class.java).apply {
+            putExtra(FROM_ACTIVITY, FROM_PROFILE)
+            putExtra(ARG_OWNER_ID, ownerId)
+            putExtra(ARG_POST_ID, postId)
+        }
+        val bundle = ActivityOptions.makeSceneTransitionAnimation(activity).toBundle()
+        startActivity(intent, bundle)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -156,6 +165,6 @@ class ProfileFragment : Fragment(),
     }
 
     private fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
-        //presenter.changeLikes(postId, postOwnerId, isLikes)
+        presenter.changeLike(postId, ownerId, isLikes)
     }
 }

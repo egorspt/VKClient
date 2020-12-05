@@ -1,19 +1,25 @@
 package com.app.tinkoff_fintech.ui.presenters
 
+import androidx.lifecycle.LiveData
+import com.app.tinkoff_fintech.models.Post
+import com.app.tinkoff_fintech.database.PostDao
+import com.app.tinkoff_fintech.di.qualifers.PostDatabase
 import com.app.tinkoff_fintech.network.VkRepository
 import com.app.tinkoff_fintech.ui.contracts.NewsContractInterface
-import com.app.tinkoff_fintech.utils.Constants
 import com.app.tinkoff_fintech.utils.PreferencesService
+import com.app.tinkoff_fintech.utils.RelevanceNews.Companion.LAST_REFRESH_NEWSFEED
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class NewsPresenter @Inject constructor(
+    @PostDatabase
+    private val database: PostDao,
     private val preferences: PreferencesService,
     private val vkRepository: VkRepository
 ) : NewsContractInterface.Presenter {
 
+    private val favorites: LiveData<List<Post>> = database.getNotFavorites()
     private val subscriptions = CompositeDisposable()
     lateinit var view: NewsContractInterface.View
 
@@ -27,16 +33,8 @@ class NewsPresenter @Inject constructor(
     }
 
     override fun refreshNews() {
-        preferences.put(Constants.LAST_REFRESH_NEWSFEED, Calendar.getInstance().time.time)
+        preferences.put(LAST_REFRESH_NEWSFEED, Calendar.getInstance().time.time)
         view.updateNews()
-    }
-
-    override fun checkRelevanceNews() {
-        val lastRefreshNewsTime = preferences.getLong(Constants.LAST_REFRESH_NEWSFEED)
-        val currentTime = Calendar.getInstance().time.time
-        if (lastRefreshNewsTime == 0L) preferences.put(Constants.LAST_REFRESH_NEWSFEED, currentTime)
-        if (currentTime - lastRefreshNewsTime > TimeUnit.HOURS.toMillis(1))
-            view.updateNews()
     }
 
     override fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
@@ -47,4 +45,6 @@ class NewsPresenter @Inject constructor(
             vkRepository.deleteLike(postId, postOwnerId)
                 .subscribe()
     }
+
+    override fun getNotFavorites() = favorites
 }

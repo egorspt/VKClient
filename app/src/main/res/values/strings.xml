@@ -27,6 +27,9 @@
     <string name="needUpdateNewsfeed">needUpdateNewsfeed</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string name="connectionLost">Нет соединения</string>
+    <string name="connectionAvailable">Соединение восстановлено</string>
+
     <string name="personName">%1$s %2$s</string>
     <string name="profileDate">День рождения: %1$s</string>
     <string name="profileCareer">Карьера: %1$s</string>
@@ -61,4 +64,7 @@
     <string name="newPostSettingsComments">Включить комментирование</string>
     <string name="newPostSettingsNotifications">Не отправлять уведомления</string>
     <string name="tools_long_message">Оооооооооочееееееень длиииииииииинное сообщение</string>
+    <string name="errorOperation">Операция не выполнена</string>
+    <string name="repeatLogin">Требуется повторная авторизация</string>
+    <string name="buttonRepeatLogin">Перезайти</string>
 </resources>

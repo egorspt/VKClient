@@ -21,8 +21,9 @@ import com.app.tinkoff_fintech.ui.contracts.NewPostContractInterface
 import com.app.tinkoff_fintech.ui.presenters.NewPostPresenter
 import com.app.tinkoff_fintech.utils.CreateFileFromUri
 import com.app.tinkoff_fintech.utils.ImageLoad
-import com.app.tinkoff_fintech.vk.wall.Doc
-import com.app.tinkoff_fintech.vk.wall.photo.ResponseX
+import com.app.tinkoff_fintech.network.models.wall.Doc
+import com.app.tinkoff_fintech.network.models.wall.photo.ResponseX
+import com.google.android.material.transition.platform.MaterialFade
 import kotlinx.android.synthetic.main.new_post_activity.*
 import kotlinx.android.synthetic.main.new_post_settings.view.*
 import java.io.File
@@ -57,6 +58,16 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.enterTransition = MaterialFade().apply {
+            addTarget(R.id.newPostContainer)
+            duration = 600L
+        }
+        window.returnTransition = MaterialFade().apply {
+            addTarget(R.id.newPostContainer)
+            duration = 400L
+        }
+        window.allowEnterTransitionOverlap = true
+
         (application as App).addNewPostComponent(this, this)
         (application as App).newPostComponent?.inject(this)
         super.onCreate(savedInstanceState)
@@ -74,12 +85,12 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
         imageLoad.execute(intent.getStringExtra(OWNER_PHOTO), ownerPhoto)
         ownerName.text = intent.getStringExtra(OWNER_NAME)
         if (intent.getBooleanExtra(PICK_PHOTO, false))
-            pickImage()
+            chooseImage()
         initListeners()
     }
 
     private fun initListeners() {
-        mainRelativeLayout.setOnClickListener { editText.requestFocus() }
+        newPostContainer.setOnClickListener { editText.requestFocus() }
         editText.addTextChangedListener(textWatcher)
         iconDone.setOnClickListener { contentCheck() }
         iconClose.setOnClickListener { setResult(Activity.RESULT_CANCELED); finish() }
@@ -166,20 +177,6 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
                 return false
             }
         return true
-    }
-
-    private val textWatcher = object : TextWatcher {
-        override fun afterTextChanged(p0: Editable?) {
-        }
-
-        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-        }
-
-        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            if (p3 > 0) isEnableButtonCheck(true)
-            else isEnableButtonCheck(false)
-            postState.postParameterMessage = editText.text.toString()
-        }
     }
 
     private fun isEnableButtonCheck(boolean: Boolean) {
@@ -269,6 +266,20 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
         listParameterFile.remove(listParameterFile.find { it.contains(type) })
         if (postState.postParameterMessage.isEmpty() && listParameterFile.isEmpty() )
             isEnableButtonCheck(false)
+    }
+
+    private val textWatcher = object : TextWatcher {
+        override fun afterTextChanged(p0: Editable?) {
+        }
+
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            if (p3 > 0) isEnableButtonCheck(true)
+            else isEnableButtonCheck(false)
+            postState.postParameterMessage = editText.text.toString()
+        }
     }
 
 }

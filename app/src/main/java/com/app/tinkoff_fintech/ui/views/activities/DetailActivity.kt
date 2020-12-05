@@ -8,26 +8,25 @@ import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.database.Post
+import com.app.tinkoff_fintech.models.Post
 import com.app.tinkoff_fintech.database.PostDao
-import com.app.tinkoff_fintech.detail.DetailAdapter
-import com.app.tinkoff_fintech.detail.paging.CommentListViewModel
-import com.app.tinkoff_fintech.detail.paging.CommentListViewModelFactory
+import com.app.tinkoff_fintech.recycler.adapters.DetailAdapter
+import com.app.tinkoff_fintech.paging.detail.CommentListViewModel
 import com.app.tinkoff_fintech.di.qualifers.PostDatabase
 import com.app.tinkoff_fintech.di.qualifers.WallDatabase
 import com.app.tinkoff_fintech.ui.contracts.DetailContractInterface
 import com.app.tinkoff_fintech.ui.presenters.DetailPresenter
 import com.app.tinkoff_fintech.utils.State
+import com.google.android.material.transition.platform.MaterialFade
 import dagger.Lazy
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
@@ -52,12 +51,13 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
     @WallDatabase
     lateinit var wallDatabase: Lazy<PostDao>
 
-    private lateinit var viewModel: CommentListViewModel
+    private val viewModel: CommentListViewModel by viewModels()
     private var postId by Delegates.notNull<Int>()
     private var ownerId by Delegates.notNull<Int>()
     private var fromActivity = 0
 
     companion object {
+        const val ARG_OWNER_ID = "arg_owner_post"
         const val ARG_POST_ID = "arg_id_post"
         const val FROM_ACTIVITY = "from_activity"
         const val FROM_NEWS = 0
@@ -65,11 +65,20 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        window.enterTransition = MaterialFade().apply {
+            addTarget(R.id.containerEnter)
+            duration = 600L
+        }
+        window.returnTransition = MaterialFade().apply {
+            addTarget(R.id.containerEnter)
+            duration = 400L
+        }
+        window.allowEnterTransitionOverlap = true
+
         (application as App).appComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.detail_activity)
         presenter.attachView(this)
-
     }
 
     override fun onDestroy() {
@@ -91,33 +100,38 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         fromActivity = intent.getIntExtra(FROM_ACTIVITY, 0)
+        ownerId = intent.getIntExtra(ARG_OWNER_ID, 0)
         postId = intent.getIntExtra(ARG_POST_ID, 0)
+
         getPost()
 
         editComment.addTextChangedListener(textWatcher)
         buttonSend.setOnClickListener { createComment() }
     }
 
+    private fun initViewModel() {
+        if (!viewModel.isInitialized()) {
+            (application as App).appComponent.inject(viewModel)
+            viewModel.init(ownerId, postId)
+        }
+
+    }
+
     private fun createComment() {
         presenter.createComment(ownerId, postId, editComment.text.toString())
     }
 
-    override fun successCreateComment() {
+    override fun updateComments() {
         viewModel.invalidate()
         editComment.hideKeyboard()
         editComment.clearFocus()
         editComment.text.clear()
-
     }
 
     private fun View.hideKeyboard() {
         val inputMethodManager =
             getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
-    }
-
-    override fun errorCreateComment() {
-        Toast.makeText(this, "Не удалось отправить", Toast.LENGTH_SHORT).show()
     }
 
     private fun startImageActivity(url: String) {
@@ -138,11 +152,6 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
     }
 
     private fun initAdapter(post: Post) {
-        viewModel = ViewModelProviders.of(
-            this,
-            CommentListViewModelFactory(post.ownerId, post.id)
-        )
-            .get(CommentListViewModel::class.java)
         initState()
 
         val dividerItemDecoration = DividerItemDecoration(this, RecyclerView.VERTICAL)
@@ -156,8 +165,9 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
         recyclerView.addItemDecoration(dividerItemDecoration)
 
         with(detailAdapter) {
-            changeLikes = { postId, postOwnerId, isLikes -> changeLike(postId, postOwnerId, isLikes) }
-            clickImage = { url -> startImageActivity(url) }
+            changeLikesListener =
+                { postId, postOwnerId, isLikes -> changeLike(postId, postOwnerId, isLikes) }
+            imageClickListener = { url -> startImageActivity(url) }
             retry = { viewModel.retry() }
             this.post = post
         }
@@ -170,27 +180,22 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
     }
 
     private fun initState() {
-        textError.setOnClickListener { viewModel.retry() }
         viewModel.getState().observe(this, Observer { state ->
-            progressBar.visibility =
-                if (viewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
-            textError.visibility =
-                if (viewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
-            detailAdapter.setState(state ?: State.DONE)
-
+            detailAdapter.setStateAdapter(state ?: State.DONE)
         })
     }
 
     private fun getPost() {
-        val database = if (fromActivity == FROM_NEWS) postDatabase.get()
-        else wallDatabase.get()
-        database.findById(postId)
+        val database = if (fromActivity == FROM_NEWS) postDatabase.get() else wallDatabase.get()
+        database.find(postId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeBy({ error ->
                 val message = error.message
             }, { post ->
-                ownerId = post.ownerId
+                if (ownerId == 0)
+                    ownerId = post.ownerId
+                initViewModel()
                 initAdapter(post)
             }
             )

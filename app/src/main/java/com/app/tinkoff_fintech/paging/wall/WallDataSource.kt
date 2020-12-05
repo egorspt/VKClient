@@ -1,7 +1,7 @@
 package com.app.tinkoff_fintech.paging.wall
 
-import com.app.tinkoff_fintech.BaseDataSource
-import com.app.tinkoff_fintech.database.Post
+import com.app.tinkoff_fintech.paging.BaseDataSource
+import com.app.tinkoff_fintech.models.Post
 import com.app.tinkoff_fintech.network.VkRepository
 import com.app.tinkoff_fintech.utils.State
 import io.reactivex.disposables.CompositeDisposable
@@ -13,7 +13,7 @@ import javax.inject.Inject
 class WallDataSource @Inject constructor(
     private val vkRepository: VkRepository,
     private val compositeDisposable: CompositeDisposable
-) : BaseDataSource(compositeDisposable) {
+) : BaseDataSource<Post>(compositeDisposable) {
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Post>) {
         loadData(params.startPosition,

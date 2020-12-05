@@ -5,7 +5,9 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.app.tinkoff_fintech.database.Post
+import com.app.tinkoff_fintech.models.Post
+import com.app.tinkoff_fintech.network.VkRepository
+import com.app.tinkoff_fintech.paging.news.NewsDataSourceFactory
 import com.app.tinkoff_fintech.utils.State
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -15,19 +17,20 @@ class WallListViewModel : ViewModel() {
     companion object { private const val pageSize = 10 }
 
     @Inject
-    lateinit var wallDataSourceFactory: WallDataSourceFactory
+    lateinit var vkRepository: VkRepository
 
     @Inject
     lateinit var compositeDisposable: CompositeDisposable
 
+    private lateinit var wallDataSourceFactory: WallDataSourceFactory
     lateinit var newsList: LiveData<PagedList<Post>>
-
 
     fun isInitialized(): Boolean {
         return this::wallDataSourceFactory.isInitialized && this::compositeDisposable.isInitialized
     }
 
     fun init() {
+        wallDataSourceFactory = WallDataSourceFactory(vkRepository, compositeDisposable)
         val config = PagedList.Config.Builder()
             .setPageSize(pageSize)
             .setEnablePlaceholders(false)
@@ -48,7 +51,7 @@ class WallListViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        compositeDisposable.dispose()
+        compositeDisposable.clear()
     }
 
     fun invalidate() {

@@ -53,5 +53,4 @@ class ImageSaveToGallery @Inject constructor(private val contentResolver: Conten
             }
         }
     }
-
 }

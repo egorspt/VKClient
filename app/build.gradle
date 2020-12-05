@@ -37,37 +37,40 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:$coreKtx_version"
-    implementation "androidx.appcompat:appcompat:$appCompat_version"
-    implementation "com.google.android.material:material:$material_version"
-    implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
+    implementation "androidx.core:core-ktx:$coreKtxVersion"
+    implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    implementation "com.google.android.material:material:$materialVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintlayoutVersion"
 
-    implementation "androidx.recyclerview:recyclerview:$recyclerview_verison"
-    implementation "com.facebook.shimmer:shimmer:$shimmer_version"
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swiperefreshlayout_version"
+    implementation "androidx.recyclerview:recyclerview:$recyclerviewVerison"
+    implementation "com.facebook.shimmer:shimmer:$shimmerVersion"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swiperefreshlayoutVersion"
 
-    implementation "com.google.code.gson:gson:$gson_version"
-    implementation "com.github.bumptech.glide:glide:$glide_version"
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
 
-    implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
 
-    implementation "com.vk:androidsdk:$vk_android_sdk_version"
+    implementation "com.vk:androidsdk:$vkAndroidSdkVersion"
 
-    implementation "io.reactivex.rxjava2:rxjava:$rxjava2_version"
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
-    implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlin_version"
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_gson_version"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofit_rx_version"
+    implementation "io.reactivex.rxjava2:rxjava:$rxjava2Version"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxandroidVersion"
+    implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitGsonVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitRxVersion"
 
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
-    implementation "androidx.room:room-rxjava2:$room_version"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.room:room-rxjava2:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
 
-    implementation "androidx.paging:paging-runtime:$paging_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
 
-    implementation "com.google.dagger:dagger:$dagger_version"
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    implementation "androidx.paging:paging-runtime:$pagingVersion"
+
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 }

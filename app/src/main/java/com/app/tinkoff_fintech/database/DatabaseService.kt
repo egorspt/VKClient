@@ -2,16 +2,28 @@ package com.app.tinkoff_fintech.database
 
 import android.content.Context
 import androidx.room.Room
-import javax.inject.Inject
 
-class DatabaseService @Inject constructor(private val context: Context) {
+object DatabaseService {
 
-    companion object {
-        const val POST_DATABASE_NAME = "postDatabaseName"
-        const val WALL_DATABASE_NAME = "wallDatabaseName"
+    private lateinit var postDao: PostDao
+    private lateinit var wallDao: PostDao
+    private const val POST_DATABASE_NAME = "postDatabaseName"
+    private const val WALL_DATABASE_NAME = "wallDatabaseName"
+
+    fun postDatabase(context: Context): PostDao {
+        if (!this::postDao.isInitialized)
+            postDao = Room.databaseBuilder(context, AppDatabase::class.java, POST_DATABASE_NAME).build()
+                .postDao()
+
+        return postDao
     }
 
-    fun postDatabase() = Room.databaseBuilder(context, AppDatabase::class.java, POST_DATABASE_NAME).build()
+    fun wallDatabase(context: Context): PostDao {
+        if (!this::wallDao.isInitialized)
+            wallDao = Room.databaseBuilder(context, AppDatabase::class.java, WALL_DATABASE_NAME).build()
+                .postDao()
 
-    fun wallDatabase() = Room.databaseBuilder(context, AppDatabase::class.java, WALL_DATABASE_NAME).build()
+        return wallDao
+    }
+
 }

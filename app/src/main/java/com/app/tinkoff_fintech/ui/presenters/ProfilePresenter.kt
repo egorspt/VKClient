@@ -25,13 +25,22 @@ class ProfilePresenter @Inject constructor(
     }
 
     override fun getProfileInformation() {
-        subscriptions += vkRepository.getProfile()
+        subscriptions +=
+            vkRepository.getProfile()
             .subscribeBy(
                 onError = {
-                    view.showError(it.message)
                 },
                 onSuccess = {
                     view.updateProfileInformation(it)
                 })
+    }
+
+    override fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
+        if (!isLikes)
+            vkRepository.addLike(postId, postOwnerId)
+                .subscribe()
+        else
+            vkRepository.deleteLike(postId, postOwnerId)
+                .subscribe()
     }
 }
