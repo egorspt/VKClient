@@ -9,14 +9,22 @@ import com.app.tinkoff_fintech.recycler.diff.PostDifferCallback
 import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
 import com.app.tinkoff_fintech.recycler.decorations.DecorationType
 import com.app.tinkoff_fintech.recycler.decorations.DecorationTypeProvider
+import com.app.tinkoff_fintech.recycler.holders.FooterViewHolder
+import com.app.tinkoff_fintech.recycler.holders.HeaderViewHolder
 import com.app.tinkoff_fintech.recycler.holders.NewsPostViewHolder
 import com.app.tinkoff_fintech.utils.ChangeLikesListener
 import com.app.tinkoff_fintech.utils.PostClickListener
 import javax.inject.Inject
 
 class FavoritesAdapter @Inject constructor(differCallback: PostDifferCallback) :
-    RecyclerView.Adapter<NewsPostViewHolder>(),
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     SwipeListener, DecorationTypeProvider {
+
+    companion object {
+        private const val TYPE_HEADER = 0
+        private const val TYPE_POST = 1
+        private const val headerText = "Избранное"
+    }
 
     lateinit var postClickListener: PostClickListener
     lateinit var changeLikesListener: ChangeLikesListener
@@ -28,15 +36,28 @@ class FavoritesAdapter @Inject constructor(differCallback: PostDifferCallback) :
         }
         get() = differ.currentList
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsPostViewHolder {
-        return NewsPostViewHolder.create(parent, postClickListener, changeLikesListener)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_HEADER -> HeaderViewHolder.create(parent)
+            else -> NewsPostViewHolder.create(parent, postClickListener, changeLikesListener)
+        }
     }
 
-    override fun onBindViewHolder(holder: NewsPostViewHolder, position: Int) {
-        holder.bind(posts[position])
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            TYPE_HEADER -> (holder as HeaderViewHolder).bind(headerText)
+            else -> (holder as NewsPostViewHolder).bind(posts[position - 1])
+        }
     }
 
-    override fun getItemCount() = differ.currentList.size
+    override fun getItemViewType(position: Int): Int {
+        return when (position) {
+            0 -> TYPE_HEADER
+            else -> TYPE_POST
+        }
+    }
+
+    override fun getItemCount() = 1 + differ.currentList.size
 
     private fun changeLike(position: Int, isLiked: Boolean) {
         val post = posts[position]
@@ -67,6 +88,8 @@ class FavoritesAdapter @Inject constructor(differCallback: PostDifferCallback) :
     }
 
     override fun getType(position: Int): DecorationType {
+        if (position == 0)
+            return DecorationType.Empty
         return DecorationType.Space
     }
 }

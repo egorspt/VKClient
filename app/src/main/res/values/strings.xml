@@ -9,7 +9,7 @@
     <string name="postDate">12 minutes ago</string>
     <string name="postContent">Нечего из-за всякого говна переживать. Жизнь продолжается.</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="navigationNewsline">Новости</string>
+    <string name="navigationNews">Новости</string>
     <string name="navigationFavorites">Избранное</string>
     <string name="navigationProfile">Профиль</string>
     <string name="dialogErrorTitle">Ошибка</string>

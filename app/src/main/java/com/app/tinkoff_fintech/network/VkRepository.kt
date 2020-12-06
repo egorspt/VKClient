@@ -1,6 +1,7 @@
 package com.app.tinkoff_fintech.network
 
 import android.content.Context
+import android.drm.DrmStore
 import android.widget.Toast
 import com.app.tinkoff_fintech.R
 import com.app.tinkoff_fintech.models.Comments
@@ -26,6 +27,7 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.ResponseBody
 import java.io.File
 import javax.inject.Inject
@@ -123,7 +125,7 @@ class VkRepository @Inject constructor(
     }
 
     fun uploadFileToServer(file: File): Single<SaveWallDocs> {
-        val requestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+        val requestBody = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
         val body: MultipartBody.Part =
             MultipartBody.Part.createFormData("file", file.name, requestBody)
         return vkService.getDocsUploadServer()
@@ -138,7 +140,7 @@ class VkRepository @Inject constructor(
     }
 
     fun uploadPhotoToServer(file: File): Single<SaveWallPhoto> {
-        val requestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+        val requestBody = file.asRequestBody("multipart/form-data".toMediaTypeOrNull())
         val body: MultipartBody.Part =
             MultipartBody.Part.createFormData("photo", file.name, requestBody)
         return vkService.getPhotoUploadServer()
@@ -252,28 +254,34 @@ class VkRepository @Inject constructor(
             .onErrorComplete()
     }
 
-    fun addLike(postId: Int, postOwnerId: Int): Completable {
+    fun addLike(postId: Int, postOwnerId: Int): Single<ActionLikes> {
         return vkService.addLike(postId, postOwnerId)
             .subscribeOn(Schedulers.io())
-            .doOnComplete {
-                databasePost.updateLike(postId, 1).subscribe()
-                databaseWall.updateLike(postId, 1).subscribe()
+            .doOnSuccess {
+                if (it.error != null) {
+                    Toast.makeText(context, context.getString(R.string.errorOperation), Toast.LENGTH_SHORT).show()
+                    return@doOnSuccess
+                }
+                databasePost.updateLike(postId, 1, it.response.likes).subscribe()
+                databaseWall.updateLike(postId, 1, it.response.likes).subscribe()
             }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnError { Toast.makeText(context, context.getString(R.string.errorOperation), Toast.LENGTH_SHORT).show() }
-            .onErrorComplete()
     }
 
-    fun deleteLike(postId: Int, postOwnerId: Int): Completable {
+    fun deleteLike(postId: Int, postOwnerId: Int): Single<ActionLikes> {
         return vkService.deleteLike(postId, postOwnerId)
             .subscribeOn(Schedulers.io())
-            .doOnComplete {
-                databasePost.updateLike(postId, 0).subscribe()
-                databaseWall.updateLike(postId, 0).subscribe()
+            .doOnSuccess {
+                if (it.error != null) {
+                    Toast.makeText(context, context.getString(R.string.errorOperation), Toast.LENGTH_SHORT).show()
+                    return@doOnSuccess
+                }
+                databasePost.updateLike(postId, 0, it.response.likes).subscribe()
+                databaseWall.updateLike(postId, 0, it.response.likes).subscribe()
             }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnError { Toast.makeText(context, context.getString(R.string.errorOperation), Toast.LENGTH_SHORT).show() }
-            .onErrorComplete()
     }
 
     fun checkAccessToken(accessToken: String): Single<TokenState> {

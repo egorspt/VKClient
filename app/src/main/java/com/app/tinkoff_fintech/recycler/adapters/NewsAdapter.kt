@@ -1,95 +1,108 @@
 package com.app.tinkoff_fintech.recycler.adapters
 
 import android.view.ViewGroup
-import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.models.Post
-import com.app.tinkoff_fintech.recycler.diff.PostDifferCallback
-import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
 import com.app.tinkoff_fintech.recycler.decorations.DecorationType
 import com.app.tinkoff_fintech.recycler.decorations.DecorationTypeProvider
+import com.app.tinkoff_fintech.recycler.diff.PostDifferCallback
+import com.app.tinkoff_fintech.recycler.holders.FooterViewHolder
+import com.app.tinkoff_fintech.recycler.holders.HeaderViewHolder
 import com.app.tinkoff_fintech.recycler.holders.NewsPostViewHolder
-import com.app.tinkoff_fintech.utils.ChangeLikesListener
+import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
 import com.app.tinkoff_fintech.utils.DateFormatter
 import com.app.tinkoff_fintech.utils.PostClickListener
-import com.app.tinkoff_fintech.utils.Retry
 import javax.inject.Inject
 
 class NewsAdapter @Inject constructor(differ: PostDifferCallback) :
-    PagedListAdapter<Post, NewsPostViewHolder>(differ),
+    BaseAdapter<Post>(differ),
     SwipeListener, DecorationTypeProvider {
 
-    lateinit var changeLikesListener: ChangeLikesListener
-    lateinit var postClickListener: PostClickListener
-    lateinit var retry: Retry
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsPostViewHolder {
-        return NewsPostViewHolder.create(parent, postClickListener, changeLikesListener)
+    companion object {
+        private const val TYPE_HEADER = 0
+        private const val TYPE_POST = 1
+        private const val TYPE_FOOTER = 2
+        private const val headerText = "Новости"
     }
 
-    override fun onBindViewHolder(holder: NewsPostViewHolder, position: Int) {
-        holder.bind(getItem(position))
+    lateinit var postClickListener: PostClickListener
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_HEADER -> HeaderViewHolder.create(parent)
+            TYPE_POST -> NewsPostViewHolder.create(parent, postClickListener, changeLikesListener)
+            else -> FooterViewHolder.create(retry, parent)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            TYPE_HEADER -> (holder as HeaderViewHolder).bind(headerText)
+            TYPE_POST -> (holder as NewsPostViewHolder).bind(getItem(position - 1))
+            else -> (holder as FooterViewHolder).bind(state)
+        }
     }
 
     override fun onBindViewHolder(
-        holder: NewsPostViewHolder,
+        holder: RecyclerView.ViewHolder,
         position: Int,
         payloads: MutableList<Any>
     ) {
-        if (payloads.isEmpty())
+        if (payloads.isEmpty() || position == 0)
             onBindViewHolder(holder, position)
         else {
             val changePost = payloads[0] as Post
             val post = currentList?.find { it.id == changePost.id } ?: return
             post.isLiked = changePost.isLiked
             post.countLikes = changePost.countLikes
-            holder.update(post)
+            (holder as NewsPostViewHolder).update(post.isLiked, post.countLikes)
         }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when {
+            position == 0 -> TYPE_HEADER
+            position in 1 until getCurrentListCount() && getCurrentListCount() > 0 -> TYPE_POST
+            else -> TYPE_FOOTER
+        }
+    }
+
+    override fun getItemCount(): Int {
+        return 1 + differ.itemCount + if (hasFooter()) 1 else 0
     }
 
     fun getItemPosition(id: Int) = currentList?.indexOf(currentList?.find { it.id == id })
-
-    private fun changeLikes(id: Int, isLiked: Boolean) {
-        val post = currentList?.find { it.id == id } ?: return
-        val position = currentList?.indexOf(post) ?: return
-        when (isLiked) {
-            true -> {
-                if (post.isLiked)
-                    post.countLikes -= 1
-            }
-            false -> {
-                if (!post.isLiked)
-                    post.countLikes += 1
-            }
-        }
-        if (isLiked == post.isLiked) {
-            post.isLiked = !post.isLiked
-            changeLikesListener(post.id, post.ownerId, isLiked)
-        }
-        notifyItemChanged(position)
-    }
 
     override fun onSwipe(position: Int, direction: Int) {
         val post = getItem(position) ?: return
         when (direction) {
             ItemTouchHelper.START -> {
-                changeLikes(post.id, true)
+                if (post.isLiked)
+                    changeLikesListener(post.id, post.ownerId, true)
             }
             ItemTouchHelper.END -> {
-                changeLikes(post.id, false)
+                if (!post.isLiked)
+                    changeLikesListener(post.id, post.ownerId, false)
             }
         }
+        notifyItemChanged(position)
     }
 
     override fun getType(position: Int): DecorationType {
-        if (position == RecyclerView.NO_POSITION || currentList == null || currentList!!.isEmpty()) {
+        if (position == 0)
+            return DecorationType.Empty
+
+        if (position == RecyclerView.NO_POSITION ||
+            currentList == null ||
+            currentList!!.isEmpty() ||
+            position >= currentList?.size ?: 0
+        ) {
             return DecorationType.Space
         }
 
-        if (position == 0) {
+        if (position == 1)
             return DecorationType.Text(DateFormatter.dateDivider(currentList!![0]!!.date * 1000))
-        }
 
         val current = currentList!![position]!!
         val previous = currentList!![position - 1]!!

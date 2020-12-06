@@ -14,7 +14,7 @@ class RelevanceNews @Inject constructor(
 ) {
 
     companion object {
-        const val LAST_REFRESH_NEWSFEED = "lastRefreshNews"
+        const val LAST_REFRESH_NEWS = "lastRefreshNews"
     }
 
     fun update() {
@@ -22,13 +22,13 @@ class RelevanceNews @Inject constructor(
             .subscribeOn(Schedulers.io())
             .subscribe()
         val currentTime = Calendar.getInstance().time.time
-        preferencesService.put(LAST_REFRESH_NEWSFEED, currentTime)
+        preferencesService.put(LAST_REFRESH_NEWS, currentTime)
     }
 
     fun check() {
-        val lastRefreshNewsTime = preferencesService.getLong(LAST_REFRESH_NEWSFEED)
+        val lastRefreshNewsTime = preferencesService.getLong(LAST_REFRESH_NEWS)
         val currentTime = Calendar.getInstance().time.time
-        if (lastRefreshNewsTime == 0L) preferencesService.put(LAST_REFRESH_NEWSFEED, currentTime)
+        if (lastRefreshNewsTime == 0L) preferencesService.put(LAST_REFRESH_NEWS, currentTime)
         if (currentTime - lastRefreshNewsTime > TimeUnit.HOURS.toMillis(1))
             update()
     }

@@ -1,7 +1,6 @@
 package com.app.tinkoff_fintech.ui.views.fragments
 
 import android.app.ActivityOptions
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -20,8 +19,8 @@ import com.app.tinkoff_fintech.R
 import com.app.tinkoff_fintech.models.Post
 import com.app.tinkoff_fintech.paging.news.NewsViewModel
 import com.app.tinkoff_fintech.recycler.adapters.NewsAdapter
-import com.app.tinkoff_fintech.recycler.touchHelpers.ItemTouchHelperCallback
 import com.app.tinkoff_fintech.recycler.decorations.PostDecorator
+import com.app.tinkoff_fintech.recycler.touchHelpers.ItemTouchHelperCallback
 import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
 import com.app.tinkoff_fintech.ui.contracts.NewsContractInterface
 import com.app.tinkoff_fintech.ui.presenters.NewsPresenter
@@ -31,20 +30,19 @@ import com.app.tinkoff_fintech.utils.State
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKScope
 import kotlinx.android.synthetic.main.news_fragment.*
-import kotlinx.android.synthetic.main.news_fragment.progressBar
-import kotlinx.android.synthetic.main.news_fragment.recyclerView
-import kotlinx.android.synthetic.main.news_fragment.textError
 import javax.inject.Inject
-
 
 class NewsFragment : Fragment(), NewsContractInterface.View {
 
     @Inject
     lateinit var presenter: NewsPresenter
+
     @Inject
     lateinit var newsAdapter: NewsAdapter
+
     @Inject
     lateinit var preferencesService: PreferencesService
+
     @Inject
     lateinit var postDecorator: PostDecorator
 
@@ -55,7 +53,11 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
         super.onAttach(context)
     }
 
-    override fun onCreateView(inflater: LayoutInflater,container: ViewGroup?,savedInstanceState: Bundle?)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    )
             : View = inflater.inflate(R.layout.news_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -68,7 +70,6 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
     }
 
     override fun updateNews() {
-        textError.visibility = View.GONE
         viewModel.invalidate()
     }
 
@@ -85,10 +86,21 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
         }
     }
 
+    override fun updateLikes(postId: Int, countLikes: Int, isLiked: Boolean) {
+        newsAdapter.getItemPosition(postId)?.let {
+            val post = newsAdapter.getItem(it)
+            post?.isLiked = isLiked
+            post?.countLikes = countLikes
+            newsAdapter.notifyItemChanged(it, post)
+        }
+    }
+
     private fun initAdapter() {
         with(newsAdapter) {
-            changeLikesListener = { itemId, ownerId, isLikes -> changeLike(itemId, ownerId, isLikes) }
-            postClickListener = { id -> startDetailActivity(id)}
+            changeLikesListener =
+                { itemId, ownerId, isLikes -> changeLike(itemId, ownerId, isLikes) }
+            postClickListener = { id -> startDetailActivity(id) }
+            retry = { viewModel.retry() }
         }
         fab.setOnClickListener { recyclerView.scrollToPosition(0); fab.visibility = View.GONE }
         with(recyclerView) {
@@ -116,31 +128,34 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
             presenter.refreshNews()
         }
 
+        initObservers()
+    }
+
+    private fun initObservers() {
         viewModel.newsList.observe(requireActivity(), Observer<PagedList<Post>> { news ->
             newsAdapter.submitList(news)
         })
+        presenter.getFavorites().observe(requireActivity(), Observer { favorites ->
+            favorites.forEach {
+                newsAdapter.getItemPosition(it.id)
+                    ?.let { it1 -> newsAdapter.notifyItemChanged(it1, it) }
+            }
+        })
         presenter.getNotFavorites().observe(requireActivity(), Observer { favorites ->
             favorites.forEach {
-                newsAdapter.getItemPosition(it.id)?.let { it1 -> newsAdapter.notifyItemChanged(it1, it) }
+                newsAdapter.getItemPosition(it.id)
+                    ?.let { it1 -> newsAdapter.notifyItemChanged(it1, it) }
             }
         })
     }
 
     private fun initState() {
-        textError.setOnClickListener {
-            progressBar.visibility = View.VISIBLE
-            viewModel.retry()
-        }
         viewModel.getState().observe(requireActivity(), Observer { state ->
-            progressBar.visibility =
-                if (viewModel.listIsEmpty() && state == State.LOADING) View.VISIBLE else View.GONE
-            textError.visibility =
-                if (viewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
             buttonLogin.visibility =
                 if (viewModel.listIsEmpty() && state == State.ERROR) View.VISIBLE else View.GONE
             if (!viewModel.listIsEmpty() || state == State.ERROR) {
                 hideShimmer()
-                //postsAdapter.setState(state ?: State.DONE)
+                newsAdapter.setStateAdapter(state ?: State.DONE)
             }
         })
     }
@@ -153,8 +168,8 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
         }
     }
 
-    private fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
-        presenter.changeLike(postId, postOwnerId, isLikes)
+    private fun changeLike(postId: Int, postOwnerId: Int, isLiked: Boolean) {
+        presenter.changeLike(postId, postOwnerId, isLiked)
     }
 
     private fun startDetailActivity(id: Int) {
@@ -166,7 +181,10 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
     }
 
     private fun vkLogin() {
-        VK.login(requireActivity(), arrayListOf(VKScope.WALL, VKScope.FRIENDS, VKScope.PHOTOS, VKScope.DOCS))
+        VK.login(
+            requireActivity(),
+            arrayListOf(VKScope.WALL, VKScope.FRIENDS, VKScope.PHOTOS, VKScope.DOCS)
+        )
     }
 }
 

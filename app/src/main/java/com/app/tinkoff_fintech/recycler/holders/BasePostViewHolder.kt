@@ -23,32 +23,15 @@ open class BasePostViewHolder(
             setDatePost(post.date)
             setCountLikes(post.countLikes)
             setCountComments(post.comments.count)
-            buttonLike.setOnClickListener { changeLike(post, itemView.postLayout) }
-            countLikes.setOnClickListener { changeLike(post, itemView.postLayout) }
+            buttonLike.setOnClickListener { changeLikes(post.id, post.ownerId, post.isLiked) }
+            countLikes.setOnClickListener { changeLikes(post.id, post.ownerId, post.isLiked) }
         }
     }
 
-    private fun changeLike(post: Post, postLayout: PostLayout) {
-        when (postLayout.isLiked()) {
-            true -> {
-                post.countLikes -=  1
-            }
-            false -> {
-                post.countLikes +=  1
-            }
-        }
-        post.isLiked = !postLayout.isLiked()
-        postLayout.setIsLiked(post.isLiked)
-        postLayout.setCountLikes(post.countLikes)
-        changeLikes(post.id, post.ownerId, !post.isLiked)
-    }
-
-    fun update(post: Post?) {
-        if (post == null)
-            return
+    fun update(isLiked: Boolean, countLikes: Int) {
         with(itemView.postLayout) {
-            setIsLiked(post.isLiked)
-            setCountLikes(post.countLikes)
+            setIsLiked(isLiked)
+            setCountLikes(countLikes)
         }
     }
 }

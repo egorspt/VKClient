@@ -48,13 +48,13 @@ interface VkService {
     fun addLike(
         @Query("item_id") itemId: Int,
         @Query("owner_id") ownerId: Int
-    ): Completable
+    ): Single<ActionLikes>
 
     @GET("likes.delete?v=5.124&type=post")
     fun deleteLike(
         @Query("item_id") itemId: Int,
         @Query("owner_id") ownerId: Int
-    ): Completable
+    ): Single<ActionLikes>
 
     @GET("newsfeed.ignoreItem?v=5.124&type=wall")
     fun ignoreItem(

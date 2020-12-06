@@ -5,10 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.models.Post
 import com.app.tinkoff_fintech.models.CommentModel
 import com.app.tinkoff_fintech.recycler.diff.CommentDiffCallback
-import com.app.tinkoff_fintech.recycler.holders.CommentHeaderViewHolder
-import com.app.tinkoff_fintech.recycler.holders.CommentViewHolder
-import com.app.tinkoff_fintech.recycler.holders.DetailPostViewHolder
-import com.app.tinkoff_fintech.recycler.holders.FooterViewHolder
+import com.app.tinkoff_fintech.recycler.holders.*
 import com.app.tinkoff_fintech.utils.ImageClickListener
 import javax.inject.Inject
 
@@ -41,6 +38,18 @@ class DetailAdapter @Inject constructor(
             TYPE_COMMENT_HEADER -> (holder as CommentHeaderViewHolder).bind(getCurrentListCount())
             TYPE_COMMENT -> (holder as CommentViewHolder).bind(differ.getItem(position - 2))
             else -> (holder as FooterViewHolder).bind(state)
+        }
+    }
+
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isEmpty() || position > 0)
+            onBindViewHolder(holder, position)
+        else {
+            (holder as DetailPostViewHolder).update(post.isLiked, post.countLikes)
         }
     }
 

@@ -9,6 +9,7 @@ import com.app.tinkoff_fintech.ui.contracts.FavoritesContractInterface
 import com.app.tinkoff_fintech.ui.contracts.ImageContractInterface
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.plusAssign
+import io.reactivex.rxkotlin.subscribeBy
 import javax.inject.Inject
 
 class FavoritesPresenter @Inject constructor(
@@ -23,11 +24,17 @@ class FavoritesPresenter @Inject constructor(
         subscriptions += if (!isLikes)
             vkRepository
                 .addLike(postId, postOwnerId)
-                .subscribe()
+                .subscribeBy(
+                    onError = { },
+                    onSuccess = { }
+                )
         else
             vkRepository
                 .deleteLike(postId, postOwnerId)
-                .subscribe()
+                .subscribeBy(
+                    onError = { },
+                    onSuccess = { }
+                )
     }
 
     override fun getFavorites() = favorites

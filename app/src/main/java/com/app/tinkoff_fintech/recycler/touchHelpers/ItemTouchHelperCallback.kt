@@ -24,6 +24,15 @@ open class ItemTouchHelperCallback(private val adapter: SwipeListener) :
         return false
     }
 
+    override fun getMovementFlags(
+        recyclerView: RecyclerView,
+        viewHolder: RecyclerView.ViewHolder
+    ): Int {
+        if (viewHolder.adapterPosition == 0)
+            return 0
+        return super.getMovementFlags(recyclerView, viewHolder)
+    }
+
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         adapter.onSwipe(viewHolder.adapterPosition, direction)
     }

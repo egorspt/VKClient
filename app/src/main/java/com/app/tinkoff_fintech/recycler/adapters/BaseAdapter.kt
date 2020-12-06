@@ -37,17 +37,17 @@ abstract class BaseAdapter<T>(
         differ.submitList(pagedList)
     }
 
-    override fun getItem(position: Int) = differ.getItem(position)
+    public override fun getItem(position: Int) = differ.getItem(position)
 
     override fun getCurrentList(): PagedList<T>? {
         return differ.currentList
     }
 
-    private fun hasFooter(): Boolean {
+    fun hasFooter(): Boolean {
         return state == State.LOADING || state == State.ERROR
     }
 
-    fun setStateAdapter(state: State) {
+    open fun setStateAdapter(state: State) {
         this.state = state
         if (state == State.ERROR)
             notifyItemChanged(itemCount - 1)

@@ -13,6 +13,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.App
@@ -33,8 +34,11 @@ import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.OWN
 import com.app.tinkoff_fintech.ui.views.activities.NewPostActivity.Companion.PICK_PHOTO
 import com.app.tinkoff_fintech.utils.State
 import com.app.tinkoff_fintech.network.models.news.ProfileInformation
+import com.app.tinkoff_fintech.recycler.touchHelpers.ItemTouchHelperCallback
+import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
 import kotlinx.android.synthetic.main.fragment_profile.progressBar
 import kotlinx.android.synthetic.main.fragment_profile.recyclerView
+import kotlinx.android.synthetic.main.news_fragment.*
 import javax.inject.Inject
 
 class ProfileFragment : Fragment(),
@@ -85,6 +89,15 @@ class ProfileFragment : Fragment(),
         presenter.getProfileInformation()
     }
 
+    override fun updateLikes(postId: Int, countLikes: Int, isLiked: Boolean) {
+        profileAdapter.getItemPosition(postId)?.let {
+            val post = profileAdapter.getItem(it)
+            post?.isLiked = isLiked
+            post?.countLikes = countLikes
+            profileAdapter.notifyItemChanged(it + 2, post)
+        }
+    }
+
     private fun initAdapter() {
         val dividerItemDecoration = DividerItemDecoration(activity, RecyclerView.VERTICAL)
         dividerItemDecoration.setDrawable(
@@ -116,6 +129,10 @@ class ProfileFragment : Fragment(),
             adapter = profileAdapter
             addItemDecoration(dividerItemDecoration)
         }
+
+        val callback = ItemTouchHelperCallback(profileAdapter as SwipeListener)
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
 
@@ -126,9 +143,18 @@ class ProfileFragment : Fragment(),
             if (!viewModel.listIsEmpty() || state == State.ERROR)
                 profileAdapter.setStateAdapter(state ?: State.DONE)
         })
-
         viewModel.newsList.observe(requireActivity(), Observer<PagedList<Post>> {
             profileAdapter.submitList(it)
+        })
+        presenter.getFavorites().observe(requireActivity(), Observer { favorites ->
+            favorites.forEach {
+                profileAdapter.getItemPosition(it.id)?.let { it1 -> profileAdapter.notifyItemChanged(it1 + 2, it) }
+            }
+        })
+        presenter.getNotFavorites().observe(requireActivity(), Observer { favorites ->
+            favorites.forEach {
+                profileAdapter.getItemPosition(it.id)?.let { it1 -> profileAdapter.notifyItemChanged(it1 + 2, it) }
+            }
         })
     }
 

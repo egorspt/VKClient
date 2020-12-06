@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 class ConnectivityManager @Inject constructor(private val context: Context) {
     private var connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    private var netList = mutableListOf<Int>()
+    private var netList = mutableListOf<String>()
     private var firstConnection = true
 
     init {
@@ -19,15 +19,21 @@ class ConnectivityManager @Inject constructor(private val context: Context) {
             networkRequestBuilder,
             object : ConnectivityManager.NetworkCallback() {
                 override fun onLost(network: Network) {
-                    netList.remove(network.describeContents())
-                    notifyConnection()
+                    if (!netList.contains(network.toString()))
+                        return
+                    netList.remove(network.toString())
+                    if (netList.isEmpty())
+                        showConnectionLost()
                 }
 
                 override fun onAvailable(network: Network) {
-                    netList.add(network.describeContents())
+                    if (netList.contains(network.toString()))
+                        return
+                    netList.add(network.toString())
                     if (firstConnection)
                         firstConnection = false
-                    else notifyConnection()
+                    else if (netList.size == 1)
+                        showConnectionAvailable()
                 }
             })
     }
@@ -36,9 +42,17 @@ class ConnectivityManager @Inject constructor(private val context: Context) {
 
     fun notifyConnection() {
         if (netList.isEmpty())
-            Toast.makeText(context, context.getString(R.string.connectionLost), Toast.LENGTH_SHORT)
-                .show()
-        else Toast.makeText(context, context.getString(R.string.connectionAvailable), Toast.LENGTH_SHORT)
+            showConnectionLost()
+        else showConnectionAvailable()
+    }
+
+    private fun showConnectionLost() {
+        Toast.makeText(context, context.getString(R.string.connectionLost), Toast.LENGTH_SHORT)
+            .show()
+    }
+
+    private fun showConnectionAvailable() {
+        Toast.makeText(context, context.getString(R.string.connectionAvailable), Toast.LENGTH_SHORT)
             .show()
     }
 }

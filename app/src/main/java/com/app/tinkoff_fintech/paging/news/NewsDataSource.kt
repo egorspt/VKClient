@@ -38,7 +38,6 @@ class NewsDataSource @Inject constructor(
             loadDataFromDatabase(0,
                 { callback.onResult(it, 0) },
                 { setRetry(Action { loadInitial(params, callback) }) })
-
     }
 
     private fun loadDataFromVk(
@@ -75,6 +74,11 @@ class NewsDataSource @Inject constructor(
                         callbackError()
                     },
                     onSuccess = {
+                        if (offset > 0 && it.isEmpty()) {
+                            updateState(State.ERROR)
+                            callbackError()
+                            return@subscribeBy
+                        }
                         if (offset == 0) {
                             connectivityManager.notifyConnection()
                             if (it.isEmpty()) {

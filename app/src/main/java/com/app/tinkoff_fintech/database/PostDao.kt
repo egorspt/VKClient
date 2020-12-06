@@ -20,8 +20,8 @@ interface PostDao {
     @Query("SELECT * FROM post WHERE isLiked = 0")
     fun getNotFavorites(): LiveData<List<Post>>
 
-    @Query("UPDATE post SET isLiked = :isLiked, countLikes = CASE WHEN :isLiked = 1 then countLikes + 1 ELSE countLikes - 1 END WHERE id = :id")
-    fun updateLike(id: Int, isLiked: Int): Completable
+    @Query("UPDATE post SET isLiked = :isLiked, countLikes = :countLikes WHERE id = :id")
+    fun updateLike(id: Int, isLiked: Int, countLikes: Int): Completable
 
     @Query("SELECT * FROM post WHERE id = :id")
     fun find(id: Int): Single<Post>

@@ -155,7 +155,7 @@ class PostLayout @JvmOverloads constructor(
             buttonLike.setImageDrawable(
                 ContextCompat.getDrawable(
                     context,
-                    R.drawable.heart
+                    R.drawable.ic_heart
                 )
             )
             countLikes.setTextColor(ContextCompat.getColor(context, R.color.materialGray))

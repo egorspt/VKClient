@@ -1,6 +1,7 @@
 package com.app.tinkoff_fintech.recycler.adapters
 
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.models.Post
 import com.app.tinkoff_fintech.recycler.holders.FooterViewHolder
@@ -9,12 +10,13 @@ import com.app.tinkoff_fintech.recycler.holders.NewPostViewHolder
 import com.app.tinkoff_fintech.recycler.holders.NewsPostViewHolder
 import com.app.tinkoff_fintech.recycler.diff.PostDifferCallback
 import com.app.tinkoff_fintech.network.models.news.ProfileInformation
+import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
 import com.app.tinkoff_fintech.utils.*
 import javax.inject.Inject
 
 class ProfileAdapter @Inject constructor(
     differ: PostDifferCallback
-) : BaseAdapter<Post>(differ) {
+) : BaseAdapter<Post>(differ), SwipeListener {
 
     lateinit var newPostClickListener: NewPostClickListener
     lateinit var postClickListener: PostClickListener
@@ -45,12 +47,62 @@ class ProfileAdapter @Inject constructor(
         }
     }
 
+    override fun onBindViewHolder(
+        holder: RecyclerView.ViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        if (payloads.isEmpty())
+            onBindViewHolder(holder, position)
+        else if (holder is NewsPostViewHolder){
+            val changePost = payloads[0] as Post
+            val post = currentList?.find { it.id == changePost.id } ?: return
+            post.isLiked = changePost.isLiked
+            post.countLikes = changePost.countLikes
+            holder.update(post.isLiked, post.countLikes)
+        }
+    }
+
     override fun getItemViewType(position: Int): Int {
         return when {
             position == 0 -> TYPE_INFORMATION
             position == 1 -> TYPE_NEW_NOTE
             position in 2 until getCurrentListCount() + 2 && getCurrentListCount() > 0 -> TYPE_WALL
             else -> TYPE_FOOTER
+        }
+    }
+
+    fun getItemPosition(id: Int) = differ.currentList?.indexOf(differ.currentList?.find { it.id == id })
+
+    private fun changeLikes(id: Int, isLiked: Boolean) {
+        val post = currentList?.find { it.id == id } ?: return
+        val position = currentList?.indexOf(post) ?: return
+        when (isLiked) {
+            true -> {
+                if (post.isLiked)
+                    post.countLikes -= 1
+            }
+            false -> {
+                if (!post.isLiked)
+                    post.countLikes += 1
+            }
+        }
+        if (isLiked == post.isLiked) {
+            post.isLiked = !post.isLiked
+            changeLikesListener(post.id, post.ownerId, isLiked)
+        }
+        notifyItemChanged(position + 2)
+    }
+
+    override fun onSwipe(position: Int, direction: Int) {
+        val post = getItem(position - 2) ?: return
+        when (direction) {
+            ItemTouchHelper.START -> {
+                changeLikes(post.id, true)
+            }
+            ItemTouchHelper.END -> {
+                changeLikes(post.id, false)
+            }
         }
     }
 }

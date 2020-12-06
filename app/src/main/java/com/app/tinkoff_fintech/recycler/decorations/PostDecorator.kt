@@ -24,6 +24,7 @@ class PostDecorator @Inject constructor() : RecyclerView.ItemDecoration() {
                 val type = adapter.getType(childAdapterPosition)
                 val view: View
                 view = when (type) {
+                    is DecorationType.Empty -> View(parent.context)
                     is DecorationType.Space -> getSpaceDecor(parent)
                     is DecorationType.Text -> getDateDecor(parent, type.text)
                 }
@@ -50,12 +51,9 @@ class PostDecorator @Inject constructor() : RecyclerView.ItemDecoration() {
         val adapter = parent.adapter
         if (adapter is DecorationTypeProvider) {
             when (adapter.getType(position)) {
-                is DecorationType.Space -> {
-                    outRect.top = getSpaceDecor(parent).measuredHeight
-                }
-                is DecorationType.Text -> {
-                    outRect.top = getDateDecor(parent, "").measuredHeight
-                }
+                is DecorationType.Empty -> outRect.top = 0
+                is DecorationType.Space -> outRect.top = getSpaceDecor(parent).measuredHeight
+                is DecorationType.Text -> outRect.top = getDateDecor(parent, "").measuredHeight
             }
         }
     }

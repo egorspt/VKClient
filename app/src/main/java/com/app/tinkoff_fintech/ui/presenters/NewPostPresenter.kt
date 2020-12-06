@@ -29,20 +29,27 @@ class NewPostPresenter @Inject constructor(
     private val vkRepository: VkRepository
 ) : BasePresenter<NewPostContractInterface.View>(), NewPostContractInterface.Presenter {
 
+    companion object {
+        private const val errorLoadFile = "Не удалось загрузить файл"
+        private const val errorLoadPhoto = "Не удалось загрузить фото"
+        private const val errorSend = "Не удалось отправить"
+        private const val empty = ""
+    }
+
     override fun uploadFileToServer(file: File) {
         view.showProgress()
         subscriptions += vkRepository.uploadFileToServer(file)
             .subscribeBy(
                 onSuccess = { result ->
                     if (result.error != null) {
-                        view.showError("Не удалось загрузить файл", result.error.error_msg ?: "")
+                        view.showError(errorLoadFile, result.error.error_msg)
                         return@subscribeBy
                     }
                     view.successLoadedFile(result.response.doc)
                 },
                 onError = {
                     view.hideProgress()
-                    view.showError("Не удалось загрузить файл", it.message ?: "")
+                    view.showError(errorLoadFile, it.message ?: empty)
                 })
 
     }
@@ -53,13 +60,13 @@ class NewPostPresenter @Inject constructor(
             .subscribeBy(
                 onSuccess = {
                     if (it.error != null) {
-                        view.showError("Не удалось загрузить фото", it.error.error_msg ?: "")
+                        view.showError(errorLoadPhoto, it.error.error_msg)
                         return@subscribeBy
                     }
                     view.successLoadedPhoto(it.response[0])
                 },
                 onError = {
-                    view.showError("Не удалось загрузить фото", it.message ?: "")
+                    view.showError(errorLoadPhoto, it.message ?: empty)
                     view.hideProgress()
                 })
     }
@@ -69,7 +76,7 @@ class NewPostPresenter @Inject constructor(
         subscriptions += vkRepository.post(state)
             .subscribeBy(
                 onError = {
-                    view.showError("Не удалось отправить", it.message ?: "")
+                    view.showError(errorSend, it.message ?: empty)
                 },
                 onSuccess = {
                     view.posted()

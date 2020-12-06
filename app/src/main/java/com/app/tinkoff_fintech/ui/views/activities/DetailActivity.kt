@@ -18,12 +18,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
-import com.app.tinkoff_fintech.models.Post
 import com.app.tinkoff_fintech.database.PostDao
-import com.app.tinkoff_fintech.recycler.adapters.DetailAdapter
-import com.app.tinkoff_fintech.paging.detail.CommentListViewModel
 import com.app.tinkoff_fintech.di.qualifers.PostDatabase
 import com.app.tinkoff_fintech.di.qualifers.WallDatabase
+import com.app.tinkoff_fintech.models.Post
+import com.app.tinkoff_fintech.paging.detail.CommentListViewModel
+import com.app.tinkoff_fintech.recycler.adapters.DetailAdapter
 import com.app.tinkoff_fintech.ui.contracts.DetailContractInterface
 import com.app.tinkoff_fintech.ui.presenters.DetailPresenter
 import com.app.tinkoff_fintech.utils.State
@@ -110,6 +110,13 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
         buttonSend.setOnClickListener { createComment() }
     }
 
+    override fun updateLikes(postId: Int, countLikes: Int, isLiked: Boolean) {
+        val post = detailAdapter.post
+        post.isLiked = isLiked
+        post.countLikes = countLikes
+        detailAdapter.notifyItemChanged(0, post)
+    }
+
     private fun initViewModel() {
         if (!viewModel.isInitialized()) {
             (application as App).appComponent.inject(viewModel)
@@ -143,8 +150,8 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
         startActivity(intent, bundle)
     }
 
-    private fun changeLike(postId: Int, postOwnerId: Int, isLikes: Boolean) {
-        presenter.changeLikes(postId, postOwnerId, isLikes)
+    private fun changeLike(postId: Int, postOwnerId: Int, isLiked: Boolean) {
+        presenter.changeLikes(postId, postOwnerId, isLiked)
     }
 
     private fun initAdapter(post: Post) {
@@ -162,7 +169,7 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
 
         with(detailAdapter) {
             changeLikesListener =
-                { postId, postOwnerId, isLikes -> changeLike(postId, postOwnerId, isLikes) }
+                { postId, postOwnerId, isLiked -> changeLike(postId, postOwnerId, isLiked) }
             imageClickListener = { url -> startImageActivity(url) }
             retry = { viewModel.retry() }
             this.post = post
@@ -186,14 +193,14 @@ open class DetailActivity : AppCompatActivity(), DetailContractInterface.View {
         database.find(postId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy({ error ->
-                val message = error.message
-            }, { post ->
-                if (ownerId == 0)
-                    ownerId = post.ownerId
-                initViewModel()
-                initAdapter(post)
-            }
+            .subscribeBy(
+                onError = { },
+                onSuccess = { post ->
+                    if (ownerId == 0)
+                        ownerId = post.ownerId
+                    initViewModel()
+                    initAdapter(post)
+                }
             )
     }
 

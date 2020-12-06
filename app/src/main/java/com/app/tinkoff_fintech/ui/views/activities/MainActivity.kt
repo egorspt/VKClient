@@ -2,10 +2,6 @@ package com.app.tinkoff_fintech.ui.views.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View.GONE
-import android.view.View.VISIBLE
-import android.view.ViewGroup
-import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
@@ -22,9 +18,6 @@ import com.app.tinkoff_fintech.ui.views.fragments.ProfileFragment
 import com.app.tinkoff_fintech.utils.AccessToken
 import com.app.tinkoff_fintech.utils.PreferencesService
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.android.material.transition.platform.MaterialContainerTransformSharedElementCallback
-import com.google.android.material.transition.platform.MaterialFade
-import com.google.android.material.transition.platform.MaterialFadeThrough
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
@@ -71,13 +64,8 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
 
     private fun onChangeFavorites(isFavorites: Boolean) {
         navView.menu.getItem(1).isVisible = isFavorites
-        val tabFavorites = (tabLayout.getChildAt(0) as ViewGroup).getChildAt(1)
-        if (isFavorites)
-            tabFavorites.visibility = VISIBLE
-        else {
-            tabFavorites.visibility = GONE
-            tabLayout.getTabAt(0)?.select()
-        }
+        if (!isFavorites)
+            navView.selectedItemId = R.id.navigation_news
     }
 
     private fun checkAccessToken() {
@@ -123,13 +111,9 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
             offscreenPageLimit = 1
         }
 
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = tabs[position]
-        }.attach()
-
         navView.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.navigation_newsline -> viewPager.currentItem = 0
+                R.id.navigation_news -> viewPager.currentItem = 0
                 R.id.navigation_favorites -> viewPager.currentItem = 1
                 R.id.navigation_profile -> viewPager.currentItem = 2
             }

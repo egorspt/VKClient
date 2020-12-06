@@ -2,6 +2,7 @@ package com.app.tinkoff_fintech.ui.views.activities
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -10,19 +11,20 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.app.tinkoff_fintech.App
 import com.app.tinkoff_fintech.R
 import com.app.tinkoff_fintech.network.VkService
+import com.app.tinkoff_fintech.network.models.wall.Doc
+import com.app.tinkoff_fintech.network.models.wall.photo.ResponseX
 import com.app.tinkoff_fintech.states.NewPostState
 import com.app.tinkoff_fintech.ui.contracts.NewPostContractInterface
 import com.app.tinkoff_fintech.ui.presenters.NewPostPresenter
 import com.app.tinkoff_fintech.utils.CreateFileFromUri
 import com.app.tinkoff_fintech.utils.ImageLoad
-import com.app.tinkoff_fintech.network.models.wall.Doc
-import com.app.tinkoff_fintech.network.models.wall.photo.ResponseX
 import com.google.android.material.transition.platform.MaterialFade
 import kotlinx.android.synthetic.main.new_post_activity.*
 import kotlinx.android.synthetic.main.new_post_settings.view.*
@@ -33,12 +35,16 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
 
     @Inject
     lateinit var presenter: NewPostPresenter
+
     @Inject
     lateinit var vkService: VkService
+
     @Inject
     lateinit var createFileFromUri: CreateFileFromUri
+
     @Inject
     lateinit var progressDialog: AlertDialog
+
     @Inject
     lateinit var imageLoad: ImageLoad
 
@@ -90,7 +96,7 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
     }
 
     private fun initListeners() {
-        newPostContainer.setOnClickListener { editText.requestFocus() }
+        newPostContainer.setOnClickListener { showSoftKeyboard() }
         editText.addTextChangedListener(textWatcher)
         iconDone.setOnClickListener { contentCheck() }
         iconClose.setOnClickListener { setResult(Activity.RESULT_CANCELED); finish() }
@@ -101,10 +107,18 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
         removeLoadedFile.setOnClickListener { removeLoadedFile() }
     }
 
+    private fun showSoftKeyboard() {
+        editText.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+        imm?.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+    }
+
     private fun contentCheck() {
         if (postState.postParameterMessage == EMPTY && listParameterFile.size == 0) return
         if (listParameterFile.isNotEmpty())
-            postState.postParameterFile = listParameterFile.toString().substring(1, listParameterFile.toString().length - 1).replace(EMPTY, "")
+            postState.postParameterFile =
+                listParameterFile.toString().substring(1, listParameterFile.toString().length - 1)
+                    .replace(EMPTY, "")
         post()
     }
 
@@ -148,19 +162,19 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
         settingsView.switch1.apply {
             isChecked = postState.postParameterOnlyFriends == 1
             setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) postState.postParameterOnlyFriends = 1 else 0
+                postState.postParameterOnlyFriends = if (isChecked)  1 else 0
             }
         }
         settingsView.switch2.apply {
             isChecked = postState.postParameterCloseComments == 0
             setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) postState.postParameterCloseComments = 0 else 1
+                postState.postParameterCloseComments = if (isChecked) 0 else 1
             }
         }
         settingsView.switch3.apply {
             isChecked = postState.postParameterMuteNotifications == 1
             setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) postState.postParameterMuteNotifications = 1 else 0
+                postState.postParameterMuteNotifications = if (isChecked) 1 else 0
             }
         }
         AlertDialog.Builder(this)
@@ -214,7 +228,8 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
         if (resultCode == Activity.RESULT_OK)
             when (requestCode) {
                 IMAGE_PICK_CODE -> {
-                    val file = File(data?.data?.path?.replace("/raw", ""))
+                    val pathname = data?.data?.path?.replace("/raw", "") ?: return
+                    val file = File(pathname)
                     uploadPhotoToServer(file)
                 }
                 FILE_PICK_CODE -> {
@@ -265,7 +280,7 @@ class NewPostActivity : AppCompatActivity(), NewPostContractInterface.View {
 
     private fun shareRemoveLoadedActions(type: String) {
         listParameterFile.remove(listParameterFile.find { it.contains(type) })
-        if (postState.postParameterMessage.isEmpty() && listParameterFile.isEmpty() )
+        if (postState.postParameterMessage.isEmpty() && listParameterFile.isEmpty())
             isEnableButtonCheck(false)
     }
 
