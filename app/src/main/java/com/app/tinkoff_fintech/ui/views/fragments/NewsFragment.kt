@@ -91,7 +91,7 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
             val post = newsAdapter.getItem(it)
             post?.isLiked = isLiked
             post?.countLikes = countLikes
-            newsAdapter.notifyItemChanged(it, post)
+            newsAdapter.notifyItemChanged(it + 1, post)
         }
     }
 

@@ -92,18 +92,4 @@ class FavoritesFragment : Fragment(), FavoritesContractInterface.View {
         val bundle = ActivityOptions.makeSceneTransitionAnimation(activity).toBundle()
         startActivity(intent, bundle)
     }
-
-    private fun onOpenDetail(sharedTextView: TextView, sharedImageView: ImageView?, post: Post) {
-        val arrayPairs = if (sharedImageView == null)
-            arrayOf(Pair.create(sharedTextView as View, getString(R.string.transitionNameText)))
-        else arrayOf(
-            Pair.create(sharedImageView as View, getString(R.string.transitionNameImage)),
-            Pair.create(sharedTextView as View, getString(R.string.transitionNameText))
-        )
-        val options =
-            ActivityOptionsCompat.makeSceneTransitionAnimation(requireActivity(), *arrayPairs)
-        activity?.startActivity(Intent(activity, DetailActivity::class.java).apply {
-            putExtra(DetailActivity.ARG_POST_ID, post.id)
-        }, options.toBundle())
-    }
 }
