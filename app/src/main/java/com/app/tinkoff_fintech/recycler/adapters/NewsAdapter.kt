@@ -63,7 +63,7 @@ class NewsAdapter @Inject constructor(differ: PostDifferCallback) :
     override fun getItemViewType(position: Int): Int {
         return when {
             position == 0 -> TYPE_HEADER
-            position in 1 until getCurrentListCount() && getCurrentListCount() > 0 -> TYPE_POST
+            position in 1 until getCurrentListCount() + 1 && getCurrentListCount() > 0 -> TYPE_POST
             else -> TYPE_FOOTER
         }
     }

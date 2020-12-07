@@ -59,26 +59,15 @@ class FavoritesAdapter @Inject constructor(differCallback: PostDifferCallback) :
 
     override fun getItemCount() = 1 + differ.currentList.size
 
-    private fun changeLike(position: Int, isLiked: Boolean) {
-        val post = posts[position]
-        when (isLiked) {
-            true -> {
-                post.isLiked = false
-                post.countLikes -= 1
-                changeLikesListener(post.id, post.ownerId, isLiked)
-                notifyItemRemoved(position)
-            }
-            false -> return
-        }
-    }
-
     override fun onSwipe(position: Int, direction: Int) {
+        notifyItemRemoved(position)
+        val post = if (posts.size > position) posts[position] else return
         when (direction) {
             ItemTouchHelper.START -> {
-                changeLike(position, true)
+                changeLikesListener(post.id, post.ownerId, true)
             }
             ItemTouchHelper.END -> {
-                changeLike(position, false)
+                changeLikesListener(post.id, post.ownerId, false)
             }
         }
     }

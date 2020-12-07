@@ -9,10 +9,12 @@ import androidx.recyclerview.widget.ItemTouchHelper.END
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.RecyclerView
 import com.app.tinkoff_fintech.R
+import com.app.tinkoff_fintech.recycler.holders.FooterViewHolder
 
-
-open class ItemTouchHelperCallback(private val adapter: SwipeListener) :
-    ItemTouchHelper.SimpleCallback(0, START or END) {
+class ItemTouchHelperCallback(
+    private val countSkipViewHolder: Int,
+    private val adapter: SwipeListener
+) : ItemTouchHelper.SimpleCallback(0, START or END) {
 
     private val paint = Paint()
 
@@ -28,8 +30,10 @@ open class ItemTouchHelperCallback(private val adapter: SwipeListener) :
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-        if (viewHolder.adapterPosition == 0)
+        if (viewHolder.adapterPosition < countSkipViewHolder)
             return 0
+        if (viewHolder is FooterViewHolder)
+            return  0
         return super.getMovementFlags(recyclerView, viewHolder)
     }
 

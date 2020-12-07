@@ -55,9 +55,7 @@ class FavoritesFragment : Fragment(), FavoritesContractInterface.View {
 
     override fun init() {
         val callback =
-            ItemTouchHelperCallback(
-                favoritesAdapter as SwipeListener
-            )
+            ItemTouchHelperCallback(1, favoritesAdapter as SwipeListener)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 

@@ -74,34 +74,17 @@ class ProfileAdapter @Inject constructor(
 
     fun getItemPosition(id: Int) = differ.currentList?.indexOf(differ.currentList?.find { it.id == id })
 
-    private fun changeLikes(id: Int, isLiked: Boolean) {
-        val post = currentList?.find { it.id == id } ?: return
-        val position = currentList?.indexOf(post) ?: return
-        when (isLiked) {
-            true -> {
-                if (post.isLiked)
-                    post.countLikes -= 1
-            }
-            false -> {
-                if (!post.isLiked)
-                    post.countLikes += 1
-            }
-        }
-        if (isLiked == post.isLiked) {
-            post.isLiked = !post.isLiked
-            changeLikesListener(post.id, post.ownerId, isLiked)
-        }
-        notifyItemChanged(position + 2)
-    }
-
     override fun onSwipe(position: Int, direction: Int) {
+        notifyItemChanged(position)
         val post = getItem(position - 2) ?: return
         when (direction) {
             ItemTouchHelper.START -> {
-                changeLikes(post.id, true)
+                if (post.isLiked)
+                changeLikesListener(post.id, post.ownerId, true)
             }
             ItemTouchHelper.END -> {
-                changeLikes(post.id, false)
+                if (!post.isLiked)
+                changeLikesListener(post.id, post.ownerId, false)
             }
         }
     }

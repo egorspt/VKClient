@@ -120,7 +120,7 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
             })
         }
 
-        val callback = ItemTouchHelperCallback(newsAdapter as SwipeListener)
+        val callback = ItemTouchHelperCallback(1, newsAdapter as SwipeListener)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
 

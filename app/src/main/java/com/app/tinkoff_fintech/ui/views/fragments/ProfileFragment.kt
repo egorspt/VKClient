@@ -36,9 +36,7 @@ import com.app.tinkoff_fintech.utils.State
 import com.app.tinkoff_fintech.network.models.news.ProfileInformation
 import com.app.tinkoff_fintech.recycler.touchHelpers.ItemTouchHelperCallback
 import com.app.tinkoff_fintech.recycler.touchHelpers.SwipeListener
-import kotlinx.android.synthetic.main.fragment_profile.progressBar
-import kotlinx.android.synthetic.main.fragment_profile.recyclerView
-import kotlinx.android.synthetic.main.news_fragment.*
+import kotlinx.android.synthetic.main.fragment_profile.*
 import javax.inject.Inject
 
 class ProfileFragment : Fragment(),
@@ -100,13 +98,7 @@ class ProfileFragment : Fragment(),
 
     private fun initAdapter() {
         val dividerItemDecoration = DividerItemDecoration(activity, RecyclerView.VERTICAL)
-        dividerItemDecoration.setDrawable(
-            ResourcesCompat.getDrawable(
-                resources,
-                R.drawable.divider_post_space,
-                null
-            )!!
-        )
+        dividerItemDecoration.setDrawable(ResourcesCompat.getDrawable(resources, R.drawable.divider_post_space,null)!!)
 
         with(profileAdapter) {
             postClickListener = { id -> startDetailActivity(id) }
@@ -130,7 +122,7 @@ class ProfileFragment : Fragment(),
             addItemDecoration(dividerItemDecoration)
         }
 
-        val callback = ItemTouchHelperCallback(profileAdapter as SwipeListener)
+        val callback = ItemTouchHelperCallback(2, profileAdapter as SwipeListener)
         val itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
