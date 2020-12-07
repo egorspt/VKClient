@@ -138,13 +138,13 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
         presenter.getFavorites().observe(requireActivity(), Observer { favorites ->
             favorites.forEach {
                 newsAdapter.getItemPosition(it.id)
-                    ?.let { it1 -> newsAdapter.notifyItemChanged(it1, it) }
+                    ?.let { it1 -> newsAdapter.notifyItemChanged(it1 + 1, it) }
             }
         })
         presenter.getNotFavorites().observe(requireActivity(), Observer { favorites ->
             favorites.forEach {
                 newsAdapter.getItemPosition(it.id)
-                    ?.let { it1 -> newsAdapter.notifyItemChanged(it1, it) }
+                    ?.let { it1 -> newsAdapter.notifyItemChanged(it1 + 1, it) }
             }
         })
     }

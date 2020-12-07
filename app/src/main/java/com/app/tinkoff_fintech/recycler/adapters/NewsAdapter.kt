@@ -54,6 +54,10 @@ class NewsAdapter @Inject constructor(differ: PostDifferCallback) :
         else {
             val changePost = payloads[0] as Post
             val post = currentList?.find { it.id == changePost.id } ?: return
+            if (currentList?.indexOf(post) != position - 1) {
+                onBindViewHolder(holder, position)
+                return
+            }
             post.isLiked = changePost.isLiked
             post.countLikes = changePost.countLikes
             (holder as NewsPostViewHolder).update(post.isLiked, post.countLikes)
@@ -75,7 +79,7 @@ class NewsAdapter @Inject constructor(differ: PostDifferCallback) :
     fun getItemPosition(id: Int) = currentList?.indexOf(currentList?.find { it.id == id })
 
     override fun onSwipe(position: Int, direction: Int) {
-        val post = getItem(position) ?: return
+        val post = getItem(position - 1) ?: return
         when (direction) {
             ItemTouchHelper.START -> {
                 if (post.isLiked)
