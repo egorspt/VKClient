@@ -1,0 +1,5 @@
+- Custom view/group
+- RxJava2
+- Room
+- Dagger2
+- MVP
