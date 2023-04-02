@@ -10,7 +10,7 @@ import io.reactivex.functions.Action
 import io.reactivex.rxkotlin.plusAssign
 import io.reactivex.schedulers.Schedulers
 
-abstract class BaseDataSource<T> (
+abstract class BaseDataSource<T : Any> (
     private val compositeDisposable: CompositeDisposable
 ) : PositionalDataSource<T>() {
 

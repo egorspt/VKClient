@@ -1,6 +1,5 @@
 package com.app.tinkoff_fintech.ui.views.activities
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -17,10 +16,8 @@ import com.app.tinkoff_fintech.ui.views.fragments.NewsFragment
 import com.app.tinkoff_fintech.ui.views.fragments.ProfileFragment
 import com.app.tinkoff_fintech.utils.AccessToken
 import com.app.tinkoff_fintech.utils.PreferencesService
-import com.google.android.material.tabs.TabLayoutMediator
 import com.vk.api.sdk.VK
-import com.vk.api.sdk.auth.VKAccessToken
-import com.vk.api.sdk.auth.VKAuthCallback
+import com.vk.api.sdk.auth.VKAuthenticationResult
 import com.vk.api.sdk.auth.VKScope
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -44,16 +41,30 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
 
     private val tabs = mutableListOf(TAB1, TAB2, TAB3)
 
+    private val authLauncher = VK.login(this) { result : VKAuthenticationResult ->
+        when (result) {
+            is VKAuthenticationResult.Success -> {
+                preferencesService.put(MainActivity.VK_ACCESS_TOKEN, result.token.accessToken)
+                preferencesService.put(MainActivity.LAST_REFRESH_TOKEN, Calendar.getInstance().time.time)
+                initApp()
+            }
+            is VKAuthenticationResult.Failed -> {
+                vkLogin()
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as App).appComponent.inject(this)
         setTheme(R.style.AppTheme_NoActionBar)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         presenter.attachView(this)
+        vkLogin()
     }
 
     override fun init() {
-        checkAccessToken()
+//        checkAccessToken()
     }
 
     private val viewPagerListener = object : ViewPager2.OnPageChangeCallback() {
@@ -90,7 +101,7 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
     }
 
     private fun vkLogin() {
-        VK.login(this, arrayListOf(VKScope.WALL, VKScope.FRIENDS, VKScope.PHOTOS, VKScope.DOCS))
+        authLauncher.launch(arrayListOf(VKScope.WALL, VKScope.FRIENDS, VKScope.PHOTOS, VKScope.DOCS))
     }
 
     private fun initApp() {
@@ -125,24 +136,6 @@ class MainActivity : AppCompatActivity(), MainContractInterface.View {
                 onChangeFavorites(false)
             else onChangeFavorites(true)
         })
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val callback = object : VKAuthCallback {
-            override fun onLogin(token: VKAccessToken) {
-                preferencesService.put(VK_ACCESS_TOKEN, token.accessToken)
-                preferencesService.put(LAST_REFRESH_TOKEN, Calendar.getInstance().time.time)
-                initApp()
-            }
-
-            override fun onLoginFailed(errorCode: Int) {
-                vkLogin()
-            }
-        }
-
-        if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
     }
 }
 

@@ -19,7 +19,7 @@ class ConvertListToPagedList {
         .setFetchExecutor(AsyncTask.THREAD_POOL_EXECUTOR)
         .build()
 
-    class ListDataSource<T>(private val items: List<T>) : PositionalDataSource<T>() {
+    class ListDataSource<T : Any>(private val items: List<T>) : PositionalDataSource<T>() {
         override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
             callback.onResult(items, 0, items.size)
         }

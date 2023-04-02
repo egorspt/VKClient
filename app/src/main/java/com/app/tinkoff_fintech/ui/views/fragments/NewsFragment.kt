@@ -27,8 +27,6 @@ import com.app.tinkoff_fintech.ui.presenters.NewsPresenter
 import com.app.tinkoff_fintech.ui.views.activities.DetailActivity
 import com.app.tinkoff_fintech.utils.PreferencesService
 import com.app.tinkoff_fintech.utils.State
-import com.vk.api.sdk.VK
-import com.vk.api.sdk.auth.VKScope
 import kotlinx.android.synthetic.main.news_fragment.*
 import javax.inject.Inject
 
@@ -48,6 +46,19 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
 
     private val viewModel: NewsViewModel by activityViewModels()
 
+//    private val authLauncher = VK.login(requireActivity()) { result : VKAuthenticationResult ->
+//        when (result) {
+//            is VKAuthenticationResult.Success -> {
+//                preferencesService.put(MainActivity.VK_ACCESS_TOKEN, result.token.accessToken)
+//                preferencesService.put(MainActivity.LAST_REFRESH_TOKEN, Calendar.getInstance().time.time)
+//                //initApp()
+//            }
+//            is VKAuthenticationResult.Failed -> {
+//                vkLogin()
+//            }
+//        }
+//    }
+
     override fun onAttach(context: Context) {
         (activity?.applicationContext as App).appComponent.inject(this)
         super.onAttach(context)
@@ -57,8 +68,7 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    )
-            : View = inflater.inflate(R.layout.news_fragment, container, false)
+    ): View = inflater.inflate(R.layout.news_fragment, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         presenter.attachView(this)
@@ -181,10 +191,6 @@ class NewsFragment : Fragment(), NewsContractInterface.View {
     }
 
     private fun vkLogin() {
-        VK.login(
-            requireActivity(),
-            arrayListOf(VKScope.WALL, VKScope.FRIENDS, VKScope.PHOTOS, VKScope.DOCS)
-        )
+//        authLauncher.launch(arrayListOf(VKScope.WALL, VKScope.FRIENDS, VKScope.PHOTOS, VKScope.DOCS))
     }
 }
-

@@ -12,7 +12,7 @@ import com.app.tinkoff_fintech.utils.ChangeLikesListener
 import com.app.tinkoff_fintech.utils.Retry
 import com.app.tinkoff_fintech.utils.State
 
-abstract class BaseAdapter<T>(
+abstract class BaseAdapter<T : Any>(
     differ: DiffUtil.ItemCallback<T>
 ) : PagedListAdapter<T, RecyclerView.ViewHolder>(differ) {
 
@@ -39,9 +39,8 @@ abstract class BaseAdapter<T>(
 
     public override fun getItem(position: Int) = differ.getItem(position)
 
-    override fun getCurrentList(): PagedList<T>? {
-        return differ.currentList
-    }
+    override val currentList: PagedList<T>?
+        get() = differ.currentList
 
     fun hasFooter(): Boolean {
         return state == State.LOADING || state == State.ERROR

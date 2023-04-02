@@ -10,6 +10,8 @@ import com.app.tinkoff_fintech.di.modules.ProfileModule
 import com.app.tinkoff_fintech.ui.contracts.FavoritesContractInterface
 import com.app.tinkoff_fintech.ui.contracts.NewPostContractInterface
 import com.app.tinkoff_fintech.ui.contracts.ProfileContractInterface
+import com.vk.api.sdk.VK
+import com.vk.api.sdk.VKTokenExpiredHandler
 
 class App : Application() {
 
@@ -20,9 +22,16 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        VK.addTokenExpiredHandler(tokenTracker)
         appComponent = DaggerAppComponent.builder()
             .appModule(AppModule(this))
             .build()
+    }
+
+    private val tokenTracker = object: VKTokenExpiredHandler {
+        override fun onTokenExpired() {
+            val t = 0
+        }
     }
 
     fun addProfileComponent(view: ProfileContractInterface.View) {

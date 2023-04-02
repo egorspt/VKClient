@@ -4,13 +4,13 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 33
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.app.tinkoff_fintech"
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
 
@@ -48,19 +48,19 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gsonVersion"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
-    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
 
     implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
 
-    implementation "com.vk:androidsdk:$vkAndroidSdkVersion"
+    implementation "com.vk:android-sdk-core:$vkAndroidSdkVersion"
+    implementation "com.vk:android-sdk-api:$vkAndroidSdkVersion"
 
     implementation "io.reactivex.rxjava2:rxjava:$rxjava2Version"
     implementation "io.reactivex.rxjava2:rxandroid:$rxandroidVersion"
     implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlinVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofitGsonVersion"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitRxVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
 
     implementation "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
@@ -69,7 +69,7 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
 
-    implementation "androidx.paging:paging-runtime:$pagingVersion"
+    implementation "androidx.paging:paging-runtime-ktx:$pagingVersion"
 
     implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
